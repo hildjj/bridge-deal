@@ -1,0 +1,44 @@
+{
+  "name": "bridge-deal",
+  "version": "0.0.0",
+  "decription": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "test": "c8 npm --test"
+  },
+  "keywords": [
+    "bridge",
+    "deal",
+    "dealer",
+    "hand",
+    "cards",
+    "trick",
+    "cardgame",
+    "random"
+  ],
+  "author": "Joe Hildebrand <joe-github@cursive.net>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hildjj/bridge-deal.git"
+  },
+  "homepage": "https://github.com/hildjj/bridge-deal#readme",
+  "bugs": {
+    "url": "https://github.com/hildjj/bridge-deal/issues"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "devDependencies": {
+    "@cto.af/eslint-config": "4.0.1",
+    "c8": "9.1.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-markdown": "4.0.1",
+    "typescript": "5.4.2",
+    "typescript-eslint": "7.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

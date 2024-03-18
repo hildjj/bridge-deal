@@ -1,0 +1,7 @@
+.github/
+.ncurc
+eslint.config.js
+pnpm-lock.yaml
+tsconfig.json
+.c8rc
+src/
