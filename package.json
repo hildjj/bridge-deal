@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "cert": "openssl req -x509 -out localhost.crt -keyout localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost'",
     "lint": "eslint .",
+    "start": "serve --ssl-key localhost.key --ssl-cert localhost.crt -C docs",
     "test": "c8 npm --test"
   },
   "keywords": [
@@ -35,10 +37,14 @@
     "c8": "9.1.0",
     "eslint": "8.57.0",
     "eslint-plugin-markdown": "4.0.1",
+    "serve": "14.2.1",
     "typescript": "5.4.2",
     "typescript-eslint": "7.2.0"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@bridge-tools/dd": "0.2.0"
   }
 }
