@@ -2,4 +2,3 @@ node_modules/
 lib/
 localhost.crt
 localhost.key
-docs/js
