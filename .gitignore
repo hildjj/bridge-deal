@@ -2,3 +2,7 @@ node_modules/
 lib/
 localhost.crt
 localhost.key
+coverage
+calldds.js
+ddummy6.cjs
+docs/js/dds.cjs

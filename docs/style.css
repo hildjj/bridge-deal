@@ -1,0 +1,100 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 23px;
+  line-height: 20px;
+}
+
+#btnNext {
+  margin: 20px;
+}
+
+#handviewer {
+  display: grid;
+  width: 600px;
+  height: 380px;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr);
+  grid-template-rows: 1fr 1fr 1fr;;
+  background-color: green;
+}
+
+.hand {
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 6px;
+  background-color: #cbcbcb;
+}
+
+#west {
+  grid-column-start: 1;
+}
+
+#east {
+  grid-column-start: 3;
+}
+
+#south {
+  grid-column-start: 2;
+}
+
+.spade, .club {
+  color: black;
+}
+
+.diamond, .heart {
+  color: #CB0000;
+}
+
+.holding {
+  line-height: 23px;
+  font-size: 25px;
+}
+
+.dirHead {
+  background-color: white;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.dirAbbrev {
+  background-color: #336799;
+  color: white;
+  padding: 0;
+  margin: 0;
+  border-radius: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+#ddsOutcomes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  margin: 10px;
+  padding: 3px;
+  background-color: antiquewhite;
+}
+
+#ddsOutcomes .club {
+  grid-column-start: 2;
+}
+
+#par {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 10px;
+  padding: 3px;
+  background-color: antiquewhite;
+}
+
+.points {
+  float: right;
+}
+
+.suit {
+  margin-left: 3px;
+  display: inline-block;
+  width: 13px;
+  font-size: 26px;
+  vertical-align: text-top;
+}
