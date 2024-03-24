@@ -122,9 +122,11 @@ let Hand = (() => {
         }
         cards = (__runInitializers(this, _instanceExtraInitializers), []);
         name;
+        dir;
         constructor(name) {
             super();
             this.name = name;
+            this.dir = name.toLowerCase();
         }
         get points() {
             return this.cards.reduce((t, v) => t + v.points, 0);
@@ -152,14 +154,34 @@ let Hand = (() => {
         get needed() {
             return 13n - BigInt(this.cards.length);
         }
+        static ranks(cards) {
+            return cards.map(s => s.rank).join('');
+        }
+        *suits() {
+            yield ['Spades', this.spades];
+            yield ['Hearts', this.hearts];
+            yield ['Diamonds', this.diamonds];
+            yield ['Clubs', this.clubs];
+        }
+        ranks() {
+            return [
+                Hand.ranks(this.spades),
+                Hand.ranks(this.hearts),
+                Hand.ranks(this.diamonds),
+                Hand.ranks(this.clubs),
+            ];
+        }
         push(cd) {
             this.cards.push(cd);
             if (this.cards.length > 13) {
                 throw new Error('Bad deal');
             }
         }
+        pbn() {
+            return this.ranks().join('.');
+        }
         lin() {
-            return `S${this.spades.map(s => s.rank).join('')}H${this.hearts.map(s => s.rank).join('')}D${this.diamonds.map(s => s.rank).join('')}C${this.clubs.map(s => s.rank).join('')}`;
+            return `S${Hand.ranks(this.spades)}H${Hand.ranks(this.hearts)}D${Hand.ranks(this.diamonds)}C${Hand.ranks(this.clubs)}`;
         }
         toString() {
             return `${Object
@@ -196,7 +218,7 @@ let Deal = (() => {
         static D = 53644737765488792839237440000n;
         num = __runInitializers(this, _instanceExtraInitializers);
         hands = [
-            new Hand('N'), new Hand('E'), new Hand('S'), new Hand('W'),
+            new Hand('North'), new Hand('East'), new Hand('South'), new Hand('West'),
         ];
         constructor(num) {
             super();
@@ -248,6 +270,9 @@ let Deal = (() => {
         lin() {
             return `https://www.bridgebase.com/tools/handviewer.html?lin=qx|o${this.num}|md|3${this.south.lin()},${this.west.lin()},${this.north.lin()}|rh||ah|${this.num}|sv|0|pg||`;
         }
+        pbn() {
+            return `N:${this.north.pbn()} ${this.east.pbn()} ${this.south.pbn()} ${this.west.pbn()}`;
+        }
         toString() {
             return this.hands
                 .map(h => `${h.name}: ${h.toString()}`)
@@ -297,5 +322,6 @@ export function prec2d(d) {
     if ((ns.clubs === 5) && Deal.weight(d.north.clubs, SUIT_POINTS) > 3) {
         return false;
     }
+    d.north.name = '2D!';
     return true;
 }

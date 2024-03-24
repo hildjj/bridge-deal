@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bridge Dealer</title>
   <script lang="javascript" type="module" src="js/index.js"></script>
-  <style>
-#btnNext {
-  margin: 20px;
-}
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div>
@@ -17,7 +13,139 @@
     <button id="btnNext">Next</button>
     <span id="tries"></span>
   </div>
-  <iframe id="handviewer" width="600" height="600" credentialless sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer">
-  </iframe>
+  <div id="handviewer">
+    <div id="par">
+      <div>Optimal:</div>
+      <div id="parResults"></div>
+      <div id="parScore"></div>
+    </div>
+    <div id="north" class="hand">
+      <div class="dirHead">
+        <span class="dirAbbrev">N</span>
+        <span id='northName'>North</span>
+        <span class="points" id="northPoints">-</span>
+      </div>
+      <div>
+        <span class="spade suit">♠</span>
+        <span id="northSpades" class="holding"></span>
+      </div>
+      <div>
+        <span class="heart suit">♥</span>
+        <span id="northHearts" class="holding"></span>
+      </div>
+      <div>
+        <span class="diamond suit">♦</span>
+        <span id="northDiamonds" class="holding"></span>
+      </div>
+      <div>
+        <span class="club suit">♣</span>
+        <span id="northClubs" class="holding"></span>
+      </div>
+    </div>
+    <div id="ddsOutcomes">
+      <div class="club">♣</div>
+      <div class="diamond">♦</div>
+      <div class="heart">♥</div>
+      <div class="spade">♠</div>
+      <div class="nt">NT</div>
+
+      <div id="outNorth">N</div>
+      <div id="outNorthClubs" class="out">-</div>
+      <div id="outNorthDiamonds" class="out">-</div>
+      <div id="outNorthHearts" class="out">-</div>
+      <div id="outNorthSpades" class="out">-</div>
+      <div id="outNorthNT" class="out">-</div>
+
+      <div id="outSouth">S</div>
+      <div id="outSouthClubs" class="out">-</div>
+      <div id="outSouthDiamonds" class="out">-</div>
+      <div id="outSouthHearts" class="out">-</div>
+      <div id="outSouthSpades" class="out">-</div>
+      <div id="outSouthNT" class="out">-</div>
+
+      <div id="outEast">E</div>
+      <div id="outEastClubs" class="out">-</div>
+      <div id="outEastDiamonds" class="out">-</div>
+      <div id="outEastHearts" class="out">-</div>
+      <div id="outEastSpades" class="out">-</div>
+      <div id="outEastNT" class="out">-</div>
+
+      <div id="outWest">W</div>
+      <div id="outWestClubs" class="out">-</div>
+      <div id="outWestDiamonds" class="out">-</div>
+      <div id="outWestHearts" class="out">-</div>
+      <div id="outWestSpades" class="out">-</div>
+      <div id="outWestNT" class="out">-</div>
+    </div>
+    <div id="west" class="hand">
+      <div class="dirHead">
+        <span class="dirAbbrev">W</span>
+        <span id='westName'>West</span>
+        <span class="points" id="westPoints">-</span>
+      </div>
+      <div>
+        <span class="spade suit">♠</span>
+        <span id="westSpades" class="holding"></span>
+      </div>
+      <div>
+        <span class="heart suit">♥</span>
+        <span id="westHearts" class="holding"></span>
+      </div>
+      <div>
+        <span class="diamond suit">♦</span>
+        <span id="westDiamonds" class="holding"></span>
+      </div>
+      <div>
+        <span class="club suit">♣</span>
+        <span id="westClubs" class="holding"></span>
+      </div>
+    </div>
+    <div id="east" class="hand">
+      <div class="dirHead">
+        <span class="dirAbbrev">E</span>
+        <span id='eastName'>East</span>
+        <span class="points" id="eastPoints">-</span>
+      </div>
+      <div>
+        <span class="spade suit">♠</span>
+        <span id="eastSpades" class="holding"></span>
+      </div>
+      <div>
+        <span class="heart suit">♥</span>
+        <span id="eastHearts" class="holding"></span>
+      </div>
+      <div>
+        <span class="diamond suit">♦</span>
+        <span id="eastDiamonds" class="holding"></span>
+      </div>
+      <div>
+        <span class="club suit">♣</span>
+        <span id="eastClubs" class="holding"></span>
+      </div>
+    </div>
+    <div id="south" class="hand">
+      <div class="dirHead">
+        <span class="dirAbbrev">S</span>
+        <span id='northName'>South</span>
+        <span class="points" id="southPoints">-</span>
+      </div>
+      <div>
+        <span class="spade suit">♠</span>
+        <span id="southSpades" class="holding"></span>
+      </div>
+      <div>
+        <span class="heart suit">♥</span>
+        <span id="southHearts" class="holding"></span>
+      </div>
+      <div>
+        <span class="diamond suit">♦</span>
+        <span id="southDiamonds" class="holding"></span>
+      </div>
+      <div>
+        <span class="club suit">♣</span>
+        <span id="southClubs" class="holding"></span>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -9,6 +9,8 @@ export default [
   {
     ignores: [
       'lib/**',
+      'calldds.js',
+      'ddummy6.cjs',
     ],
   },
   {

@@ -90,10 +90,12 @@ const Deck = Object
 export class Hand extends Inspected {
   public cards: Card[] = [];
   public name: string;
+  public dir: string;
 
   public constructor(name: string) {
     super();
     this.name = name;
+    this.dir = name.toLowerCase();
   }
 
   @lazy
@@ -135,6 +137,26 @@ export class Hand extends Inspected {
     return 13n - BigInt(this.cards.length);
   }
 
+  public static ranks(cards: Card[]): string {
+    return cards.map(s => s.rank).join('');
+  }
+
+  public *suits(): Generator<[name: string, cards: Card[]]> {
+    yield ['Spades', this.spades];
+    yield ['Hearts', this.hearts];
+    yield ['Diamonds', this.diamonds];
+    yield ['Clubs', this.clubs];
+  }
+
+  public ranks(): string[] {
+    return [
+      Hand.ranks(this.spades),
+      Hand.ranks(this.hearts),
+      Hand.ranks(this.diamonds),
+      Hand.ranks(this.clubs),
+    ];
+  }
+
   public push(cd: Card): void {
     this.cards.push(cd);
     if (this.cards.length > 13) {
@@ -142,8 +164,12 @@ export class Hand extends Inspected {
     }
   }
 
+  public pbn(): string {
+    return this.ranks().join('.');
+  }
+
   public lin(): string {
-    return `S${this.spades.map(s => s.rank).join('')}H${this.hearts.map(s => s.rank).join('')}D${this.diamonds.map(s => s.rank).join('')}C${this.clubs.map(s => s.rank).join('')}`;
+    return `S${Hand.ranks(this.spades)}H${Hand.ranks(this.hearts)}D${Hand.ranks(this.diamonds)}C${Hand.ranks(this.clubs)}`;
   }
 
   public toString(): string {
@@ -162,7 +188,7 @@ export class Deal extends Inspected {
   private static D = 53_644_737_765_488_792_839_237_440_000n;
   public num: bigint;
   public hands = [
-    new Hand('N'), new Hand('E'), new Hand('S'), new Hand('W'),
+    new Hand('North'), new Hand('East'), new Hand('South'), new Hand('West'),
   ];
 
   public constructor(num?: bigint) {
@@ -237,6 +263,10 @@ export class Deal extends Inspected {
     return `https://www.bridgebase.com/tools/handviewer.html?lin=qx|o${this.num}|md|3${this.south.lin()},${this.west.lin()},${this.north.lin()}|rh||ah|${this.num}|sv|0|pg||`;
   }
 
+  public pbn(): string {
+    return `N:${this.north.pbn()} ${this.east.pbn()} ${this.south.pbn()} ${this.west.pbn()}`;
+  }
+
   public toString(): string {
     return this.hands
       .map(h => `${h.name}: ${h.toString()}`)
@@ -292,5 +322,7 @@ export function prec2d(d: Deal): boolean {
   if ((ns.clubs === 5) && Deal.weight(d.north.clubs, SUIT_POINTS) > 3) {
     return false;
   }
+
+  d.north.name = '2D!';
   return true;
 }
