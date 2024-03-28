@@ -1,7 +1,5 @@
 // This isn't actually ES6, because I can't recompile the WASM wrapper.
 
-// import {Deal, findDeal, prec2d} from './card.js';
-
 // Has to be var for stinky non-modularized emscripten output.
 // eslint-disable-next-line no-var
 var Module: any = null;
@@ -19,11 +17,15 @@ const wasmReady = new Promise<void>((resolve, reject) => {
   importScripts('./dds.js'); // Magic happens to add to Module.
 });
 
-Promise.all([import('./card.js'), wasmReady]).then(([{
+Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async([{
   Deal,
   findDeal,
-  prec2d,
+}, {
+  Storage,
 }]) => {
+  const db = new Storage();
+  await db.init();
+
   const handleDDSRequest = Module.cwrap(
     'handleDDSRequest',
     'string',
@@ -41,13 +43,22 @@ Promise.all([import('./card.js'), wasmReady]).then(([{
     ]
   );
 
-  addEventListener('message', (e): void => {
+  type DealPredicate = Parameters<typeof findDeal>[0];
+
+  let filter: DealPredicate = (): boolean => true;
+  addEventListener('message', async(e): Promise<void> => {
+    const code = await db.getJS(e.data.name, e.data.stamp);
+    if (code) {
+      // eslint-disable-next-line @stylistic/max-len
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+      filter = new Function('deal', 'Deal', code.code) as DealPredicate;
+    }
     let d: any = undefined;
     let tries = 0;
-    if (e.data) {
-      d = new Deal(e.data);
+    if ((typeof e.data.num === 'bigint') && (e.data.num >= 0n)) {
+      d = new Deal(e.data.num);
     } else {
-      [d, tries] = findDeal(prec2d);
+      [d, tries] = findDeal(filter);
     }
     postMessage({
       num: d.num,

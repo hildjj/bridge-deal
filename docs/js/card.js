@@ -222,7 +222,7 @@ let Deal = (() => {
         ];
         constructor(num) {
             super();
-            if (num === undefined) {
+            if ((num === undefined) || (num < 0n)) {
                 const buf = new Uint8Array(12);
                 crypto.getRandomValues(buf);
                 const hex = Array.prototype.map.call(buf, i => i.toString(16).padStart(2, '0')).join('');
@@ -286,7 +286,7 @@ export function findDeal(filter) {
     while (true) {
         tries++;
         const d = new Deal();
-        if (!filter || filter(d)) {
+        if (!filter || filter(d, Deal)) {
             return [d, tries];
         }
     }
@@ -299,17 +299,17 @@ export function deals(num, filter) {
     }
     return ret;
 }
-const SUIT_POINTS = [4, 3, 2, 1];
-export function prec2d(d) {
-    const np = d.north.points;
+export function prec2d(deal) {
+    const SUIT_POINTS = [4, 3, 2, 1];
+    const np = deal.north.points;
     if (np < 11 || np > 15) {
         return false;
     }
-    const sp = d.south.points;
+    const sp = deal.south.points;
     if (sp < 11) {
         return false;
     }
-    const ns = d.north.shape;
+    const ns = deal.north.shape;
     if (ns.spades < 3 || ns.spades > 4 ||
         ns.hearts < 3 || ns.hearts > 4 ||
         ns.diamonds > 1 ||
@@ -319,9 +319,9 @@ export function prec2d(d) {
     if (ns.spades === 3 && ns.hearts === 3) {
         return false;
     }
-    if ((ns.clubs === 5) && Deal.weight(d.north.clubs, SUIT_POINTS) > 3) {
+    if ((ns.clubs === 5) && Deal.weight(deal.north.clubs, SUIT_POINTS) > 3) {
         return false;
     }
-    d.north.name = '2D!';
+    deal.north.name = '2D!';
     return true;
 }

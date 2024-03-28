@@ -1,7 +1,14 @@
+.c8rc
+.cache/
+.fiveserverrc
 .github/
 .ncurc
+.vscode/
+calldds.js
+coverage/
+ddummy6.cjs
+docs/
 eslint.config.js
 pnpm-lock.yaml
-tsconfig.json
-.c8rc
 src/
+tsconfig.json
