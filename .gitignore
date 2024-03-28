@@ -1,8 +1,7 @@
-node_modules/
-lib/
-localhost.crt
-localhost.key
-coverage
+.cache/
 calldds.js
+coverage
 ddummy6.cjs
 docs/js/dds.cjs
+lib/
+node_modules/

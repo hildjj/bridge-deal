@@ -4,8 +4,8 @@ body {
   line-height: 20px;
 }
 
-#btnNext {
-  margin: 20px;
+.menu {
+  height: 35px;
 }
 
 #handviewer {
@@ -97,4 +97,16 @@ body {
   width: 13px;
   font-size: 26px;
   vertical-align: text-top;
+}
+
+#monaco {
+  width: 600px;
+  height: 380px;
+}
+
+#flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 10px;
 }

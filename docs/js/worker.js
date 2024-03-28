@@ -11,7 +11,9 @@ const wasmReady = new Promise((resolve, reject) => {
     };
     importScripts('./dds.js');
 });
-Promise.all([import('./card.js'), wasmReady]).then(([{ Deal, findDeal, prec2d, }]) => {
+Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async ([{ Deal, findDeal, }, { Storage, }]) => {
+    const db = new Storage();
+    await db.init();
     const handleDDSRequest = Module.cwrap('handleDDSRequest', 'string', [
         'string',
         'string',
@@ -24,14 +26,19 @@ Promise.all([import('./card.js'), wasmReady]).then(([{ Deal, findDeal, prec2d, }
         'string',
         'string',
     ]);
-    addEventListener('message', (e) => {
+    let filter = () => true;
+    addEventListener('message', async (e) => {
+        const code = await db.getJS(e.data.name, e.data.stamp);
+        if (code) {
+            filter = new Function('deal', 'Deal', code.code);
+        }
         let d = undefined;
         let tries = 0;
-        if (e.data) {
-            d = new Deal(e.data);
+        if ((typeof e.data.num === 'bigint') && (e.data.num >= 0n)) {
+            d = new Deal(e.data.num);
         }
         else {
-            [d, tries] = findDeal(prec2d);
+            [d, tries] = findDeal(filter);
         }
         postMessage({
             num: d.num,

@@ -193,7 +193,7 @@ export class Deal extends Inspected {
 
   public constructor(num?: bigint) {
     super();
-    if (num === undefined) {
+    if ((num === undefined) || (num < 0n)) {
       const buf = new Uint8Array(12);
       crypto.getRandomValues(buf);
       const hex = Array.prototype.map.call(
@@ -274,7 +274,8 @@ export class Deal extends Inspected {
   }
 }
 
-export type DealPredicate = (deal: Deal) => boolean;
+export type DealPredicate =
+  (deal: Deal, cls: typeof Deal.constructor) => boolean;
 
 export function findDeal(filter?: DealPredicate): [Deal, number] {
   let tries = 0;
@@ -282,7 +283,7 @@ export function findDeal(filter?: DealPredicate): [Deal, number] {
   while (true) {
     tries++;
     const d = new Deal();
-    if (!filter || filter(d)) {
+    if (!filter || filter(d, Deal)) {
       return [d, tries];
     }
   }
@@ -298,18 +299,18 @@ export function deals(num: number, filter?: DealPredicate): Deal[] {
   return ret;
 }
 
-const SUIT_POINTS = [4, 3, 2, 1];
-export function prec2d(d: Deal): boolean {
-  const np = d.north.points;
+export function prec2d(deal: Deal): boolean {
+  const SUIT_POINTS = [4, 3, 2, 1];
+  const np = deal.north.points;
   if (np < 11 || np > 15) {
     return false;
   }
-  const sp = d.south.points;
+  const sp = deal.south.points;
   if (sp < 11) {
     return false;
   }
 
-  const ns = d.north.shape;
+  const ns = deal.north.shape;
   if (ns.spades < 3 || ns.spades > 4 ||
       ns.hearts < 3 || ns.hearts > 4 ||
       ns.diamonds > 1 ||
@@ -319,10 +320,10 @@ export function prec2d(d: Deal): boolean {
   if (ns.spades === 3 && ns.hearts === 3) {
     return false;
   }
-  if ((ns.clubs === 5) && Deal.weight(d.north.clubs, SUIT_POINTS) > 3) {
+  if ((ns.clubs === 5) && Deal.weight(deal.north.clubs, SUIT_POINTS) > 3) {
     return false;
   }
 
-  d.north.name = '2D!';
+  deal.north.name = '2D!';
   return true;
 }
