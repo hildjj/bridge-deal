@@ -21,7 +21,12 @@ if (ns.spades === 3 && ns.hearts === 3) {
 if ((ns.clubs === 5) && Deal.weight(deal.north.clubs, SUIT_POINTS) > 3) {
     return false;
 }
-deal.north.name = '2D!';
+deal.north.name = '2D';
+deal.randVuln();
+deal.bid('2D!: 11-15, ~4414')
+deal.bid('P')
+deal.bid('2N!: Forcing, asks clarification')
+
 return true;
 `;
 export class Storage {
@@ -79,8 +84,15 @@ export class Storage {
             return null;
         }
         const js = await this.get('js', name);
+        if (!js) {
+            return null;
+        }
         this.#stamps[js.name] = js.stamp;
         return js;
+    }
+    async delJS(name) {
+        await this.delete('js', name);
+        delete this.#stamps[name];
     }
     getJSnames() {
         return new Promise((resolve, reject) => {
@@ -92,7 +104,7 @@ export class Storage {
             const req = txn.objectStore('js').getAllKeys();
             req.onerror = reject;
             req.onsuccess = () => {
-                resolve(req.result);
+                resolve(req.result.sort());
             };
         });
     }
@@ -128,6 +140,18 @@ export class Storage {
             req.onsuccess = () => {
                 resolve();
             };
+        });
+    }
+    delete(store, key) {
+        return new Promise((resolve, reject) => {
+            if (!this.#db) {
+                reject(new Error('Uninitialized'));
+                return;
+            }
+            const txn = this.#db.transaction(store, 'readwrite');
+            const req = txn.objectStore(store).delete(key);
+            req.onerror = reject;
+            req.onsuccess = () => resolve();
         });
     }
 }

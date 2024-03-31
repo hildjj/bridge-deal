@@ -3,6 +3,21 @@ export enum Suit {
   DIAMONDS = '♢',
   HEARTS = '♡',
   SPADES = '♠',
+  NT = 'N',
+}
+
+export enum Vuln {
+  ALL = 'All',
+  NONE = 'None',
+  NS = 'NS',
+  EW = 'EW',
+}
+
+export enum Direction {
+  NORTH = 'north',
+  EAST = 'east',
+  SOUTH = 'south',
+  WEST = 'west',
 }
 
 export type SuitStr = 'clubs' | 'diamonds' | 'hearts' | 'spades';
@@ -90,12 +105,12 @@ const Deck = Object
 export class Hand extends Inspected {
   public cards: Card[] = [];
   public name: string;
-  public dir: string;
+  public dir: Direction;
 
   public constructor(name: string) {
     super();
     this.name = name;
-    this.dir = name.toLowerCase();
+    this.dir = name.toLowerCase() as Direction;
   }
 
   @lazy
@@ -157,6 +172,21 @@ export class Hand extends Inspected {
     ];
   }
 
+  public range(min: number, max: number): boolean {
+    const pts = this.points;
+    return (pts >= min) && (pts <= max);
+  }
+
+  public balanced(): boolean {
+    const lens = [
+      this.spades.length,
+      this.hearts.length,
+      this.diamonds.length,
+      this.clubs.length,
+    ];
+    return !lens.some(s => s < 2 || s > 5);
+  }
+
   public push(cd: Card): void {
     this.cards.push(cd);
     if (this.cards.length > 13) {
@@ -183,10 +213,137 @@ export class Hand extends Inspected {
   }
 }
 
+export interface BidOptions {
+  level: number;
+  suit?: Suit;
+  alert?: boolean;
+  description?: string;
+}
+
+export interface BidJSON {
+  level: number;
+  suit?: Suit;
+  alert: boolean;
+  description?: string;
+}
+
+export class Bid extends Inspected {
+  public static PASS = 0;
+  public static DOUBLE = -1;
+  public static REDOUBLE = -1;
+
+  public level: number;
+  public suit?: Suit;
+  public alert: boolean;
+  public description: string | undefined;
+
+  public constructor(opts?: BidOptions | string) {
+    super();
+
+    if (!opts) {
+      opts = 'P';
+    }
+
+    if (typeof opts === 'string') {
+      const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
+      if (!m?.groups) {
+        throw new Error(`Invalid bid: "${opts}"`);
+      }
+      const level = m.groups.level ?
+        parseInt(m.groups.level, 10) :
+        {
+          P: Bid.PASS,
+          X: Bid.DOUBLE,
+          XX: Bid.REDOUBLE,
+        }[m.groups.bid];
+      if (typeof level === 'undefined') {
+        throw new Error(`Unknown bid: "${opts}"`);
+      }
+      opts = {
+        level,
+        alert: Boolean(m.groups.alert),
+      };
+      if (m.groups.suit) {
+        opts.suit = {
+          C: Suit.CLUBS,
+          D: Suit.DIAMONDS,
+          H: Suit.HEARTS,
+          S: Suit.SPADES,
+          N: Suit.NT,
+        }[m.groups.suit.toUpperCase()];
+      }
+      if (m.groups.description) {
+        opts.description = m.groups.description;
+      }
+    }
+
+    if (opts.suit) {
+      if ((opts.level < 1) || (opts.level > 7)) {
+        throw new Error(`Invalid level: "${opts.level}"`);
+      }
+    } else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
+      throw new Error(`Invalid level: "${opts.level}"`);
+    }
+
+    this.level = opts.level;
+    this.suit = opts.suit;
+    this.alert = opts.alert ?? false;
+    this.description = opts.description;
+  }
+
+  public toString(bare = false): string {
+    let ret = '';
+    switch (this.level) {
+      case -2:
+        ret = 'XX';
+        break;
+      case -1:
+        ret = 'X';
+        break;
+      case 0:
+        ret = 'P';
+        break;
+      default:
+        ret = `${this.level}${this.suit}`;
+        break;
+    }
+
+    if (!bare) {
+      if (this.alert) {
+        ret += '!';
+      }
+      if (this.description) {
+        ret += ` (${this.description})`;
+      }
+    }
+    return ret;
+  }
+
+  public toJSON(): BidJSON {
+    return {
+      level: this.level,
+      suit: this.suit,
+      alert: this.alert,
+      description: this.description,
+    };
+  }
+}
+
+export interface DealJSON {
+  num: string;
+  vuln: Vuln;
+  dealer: Direction;
+  bids: BidJSON[];
+  names: string[];
+}
+
 export class Deal extends Inspected {
   // 52! / (13!)**4
   private static D = 53_644_737_765_488_792_839_237_440_000n;
   public num: bigint;
+  public vuln: Vuln = Vuln.NONE;
+  public dealer: Direction = Direction.NORTH;
+  public bids: Bid[] = [];
   public hands = [
     new Hand('North'), new Hand('East'), new Hand('South'), new Hand('West'),
   ];
@@ -241,6 +398,20 @@ export class Deal extends Inspected {
     return this.hands[3];
   }
 
+  public static fromJSON(o: DealJSON | string): Deal {
+    if (typeof o === 'string') {
+      o = JSON.parse(o) as DealJSON;
+    }
+    const d = new Deal(BigInt(`0x${o.num}`));
+    o.names.forEach((v: string, i: number) => {
+      d.hands[i].name = v;
+    });
+    d.vuln = o.vuln;
+    d.dealer = o.dealer;
+    d.bids = o.bids.map(b => new Bid(b));
+    return d;
+  }
+
   /**
    * Add all of the weights for the cards held.
    *
@@ -259,6 +430,15 @@ export class Deal extends Inspected {
     return tot;
   }
 
+  public randVuln(): void {
+    const v = Math.floor(Math.random() * 4);
+    this.vuln = Object.values(Vuln)[v];
+  }
+
+  public bid(opts: BidOptions | string): void {
+    this.bids.push(new Bid(opts));
+  }
+
   public lin(): string {
     return `https://www.bridgebase.com/tools/handviewer.html?lin=qx|o${this.num}|md|3${this.south.lin()},${this.west.lin()},${this.north.lin()}|rh||ah|${this.num}|sv|0|pg||`;
   }
@@ -272,6 +452,16 @@ export class Deal extends Inspected {
       .map(h => `${h.name}: ${h.toString()}`)
       .join('\n');
   }
+
+  public toJSON(): DealJSON {
+    return {
+      num: this.num.toString(16),
+      vuln: this.vuln,
+      dealer: this.dealer,
+      bids: this.bids.map(b => b.toJSON()),
+      names: this.hands.map(h => h.name),
+    };
+  }
 }
 
 export type DealPredicate =
@@ -281,9 +471,18 @@ export function findDeal(filter?: DealPredicate): [Deal, number] {
   let tries = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    tries++;
+    if (tries++ > 10000) {
+      throw new Error('Too many tries');
+    }
     const d = new Deal();
-    if (!filter || filter(d, Deal)) {
+    if (!filter) {
+      return [d, tries];
+    }
+    const ret = filter(d, Deal);
+    if (typeof ret !== 'boolean') {
+      throw new Error(`Invalid return: "${ret}"`);
+    }
+    if (ret) {
       return [d, tries];
     }
   }
@@ -297,33 +496,4 @@ export function deals(num: number, filter?: DealPredicate): Deal[] {
   }
 
   return ret;
-}
-
-export function prec2d(deal: Deal): boolean {
-  const SUIT_POINTS = [4, 3, 2, 1];
-  const np = deal.north.points;
-  if (np < 11 || np > 15) {
-    return false;
-  }
-  const sp = deal.south.points;
-  if (sp < 11) {
-    return false;
-  }
-
-  const ns = deal.north.shape;
-  if (ns.spades < 3 || ns.spades > 4 ||
-      ns.hearts < 3 || ns.hearts > 4 ||
-      ns.diamonds > 1 ||
-      ns.clubs > 5) {
-    return false;
-  }
-  if (ns.spades === 3 && ns.hearts === 3) {
-    return false;
-  }
-  if ((ns.clubs === 5) && Deal.weight(deal.north.clubs, SUIT_POINTS) > 3) {
-    return false;
-  }
-
-  deal.north.name = '2D!';
-  return true;
 }

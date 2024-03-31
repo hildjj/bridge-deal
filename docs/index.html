@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs/editor/editor.main.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs/loader.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@30,400,1,200" rel="stylesheet" />
   <script lang="javascript" type="module" src="js/index.js"></script>
 </head>
 
@@ -19,10 +20,11 @@
   <div id="flex">
     <div>
       <div class="menu">
-        <button id="btnPrev" title="Control-p" disabled>Prev</button>
-        <button id="btnCopy" title="Control-c" disabled>Copy</button>
-        <button id="btnNext" title="Control-n">Next</button>
+        <button id="btnPrev" class="material-symbols-outlined md-inactive" title="Control-p" disabled>arrow_back</button>
+        <button id="btnCopy" class="material-symbols-outlined md-inactive" disabled>content_paste</button>
+        <button id="btnNext" class="material-symbols-outlined" title="Control-n">arrow_forward</button>
         <span id="tries"></span>
+        <span id="error"></span>
       </div>
       <div id="handviewer">
         <div id="par">
@@ -111,6 +113,12 @@
             <span id="westClubs" class="holding"></span>
           </div>
         </div>
+        <div id="bidding">
+          <div class='bidDir' id="westBid">W</div>
+          <div class='bidDir' id="northBid">N</div>
+          <div class='bidDir' id="eastBid">E</div>
+          <div class='bidDir' id="southBid">S</div>
+        </div>
         <div id="east" class="hand">
           <div class="dirHead">
             <span class="dirAbbrev">E</span>
@@ -137,7 +145,7 @@
         <div id="south" class="hand">
           <div class="dirHead">
             <span class="dirAbbrev">S</span>
-            <span id='northName'>South</span>
+            <span id='southName'>South</span>
             <span class="points" id="southPoints">-</span>
           </div>
           <div>
@@ -162,6 +170,10 @@
     <div>
       <div class="menu">
         <select id="files" name="Files"></select>
+        <button id="btnAdd" class="material-symbols-outlined" title="Add">add</button>
+        <button id="btnRename" class="material-symbols-outlined" title="Rename">save_as</button>
+        <button id="btnDelete" class="material-symbols-outlined" title="Delete">delete</button>
+        <button id="btnShare" class="material-symbols-outlined" title="Share">share</button>
       </div>
       <div id="monaco"></div>
     </div>
