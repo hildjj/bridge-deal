@@ -26,11 +26,17 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
         'string',
         'string',
     ]);
-    let filter = () => true;
+    const noOp = () => true;
+    let filter = noOp;
     addEventListener('message', async (e) => {
         const code = await db.getJS(e.data.name, e.data.stamp);
         if (code) {
-            filter = new Function('deal', 'Deal', code.code);
+            if (code.code.trim()) {
+                filter = new Function('deal', 'Deal', code.code);
+            }
+            else {
+                filter = noOp;
+            }
         }
         let d = undefined;
         let tries = 0;
@@ -38,15 +44,30 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
             d = new Deal(e.data.num);
         }
         else {
-            [d, tries] = findDeal(filter);
+            try {
+                [d, tries] = findDeal(filter);
+            }
+            catch (error) {
+                postMessage({
+                    type: 'error',
+                    error,
+                });
+                return;
+            }
         }
-        postMessage({
-            num: d.num,
-            tries,
-        });
         const pbn = d.pbn();
-        const tricks = JSON.parse(handleDDSRequest(pbn, null, 'm', null, 'None', null, null, null, d.num.toString(16), null));
+        postMessage({
+            type: 'deal',
+            num: d.num,
+            deal: d.toJSON(),
+            tries,
+            pbn,
+        });
+        const tricks = JSON.parse(handleDDSRequest(pbn, null, 'm', null, d.vuln, null, null, null, d.num.toString(16), null));
+        tricks.type = 'tricks';
         postMessage(tricks);
     });
-    postMessage('ready');
+    postMessage({
+        type: 'ready',
+    });
 }, console.error);

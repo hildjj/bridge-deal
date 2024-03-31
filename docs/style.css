@@ -5,13 +5,13 @@ body {
 }
 
 .menu {
-  height: 35px;
+  height: 40px;
 }
 
 #handviewer {
   display: grid;
   width: 600px;
-  height: 380px;
+  min-height: 380px;
   grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr);
   grid-template-rows: 1fr 1fr 1fr;;
   background-color: green;
@@ -29,8 +29,44 @@ body {
   grid-column-start: 1;
 }
 
-#east {
-  grid-column-start: 3;
+#bidding {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  margin: 5px;
+  padding: 3px;
+  justify-items: center;
+  /* justify-content: center; */
+  align-items: start;
+  align-content: start;
+  /* visibility: hidden; */
+  background-color: #ACC5C5;;
+}
+
+.bid {
+  padding: 2px;
+  border-radius: 3px;
+}
+
+.notPass {
+  background-color: lightgrey;
+}
+
+.bidDir {
+  background-color: white;
+  justify-self: stretch;
+  text-align: center;
+}
+
+.vuln {
+  background-color: red;
+  color: white;
+}
+
+.alert {
+  border-color: red;
+  border-width: 1.5px;
+  border-style: solid;
 }
 
 #south {
@@ -109,4 +145,22 @@ body {
   flex-direction: row;
   flex-wrap: wrap;
   column-gap: 10px;
+}
+
+#tries {
+  vertical-align: text-top;
+}
+
+#error {
+  vertical-align: text-top;
+  color: red;
+}
+
+#files {
+  vertical-align: bottom;
+  font-size: 20px;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  min-width: 100px;
 }

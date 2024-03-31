@@ -38,7 +38,22 @@ export var Suit;
     Suit["DIAMONDS"] = "\u2662";
     Suit["HEARTS"] = "\u2661";
     Suit["SPADES"] = "\u2660";
+    Suit["NT"] = "N";
 })(Suit || (Suit = {}));
+export var Vuln;
+(function (Vuln) {
+    Vuln["ALL"] = "All";
+    Vuln["NONE"] = "None";
+    Vuln["NS"] = "NS";
+    Vuln["EW"] = "EW";
+})(Vuln || (Vuln = {}));
+export var Direction;
+(function (Direction) {
+    Direction["NORTH"] = "north";
+    Direction["EAST"] = "east";
+    Direction["SOUTH"] = "south";
+    Direction["WEST"] = "west";
+})(Direction || (Direction = {}));
 let c = 0;
 export const RankValues = {
     2: c++,
@@ -171,6 +186,19 @@ let Hand = (() => {
                 Hand.ranks(this.clubs),
             ];
         }
+        range(min, max) {
+            const pts = this.points;
+            return (pts >= min) && (pts <= max);
+        }
+        balanced() {
+            const lens = [
+                this.spades.length,
+                this.hearts.length,
+                this.diamonds.length,
+                this.clubs.length,
+            ];
+            return !lens.some(s => s < 2 || s > 5);
+        }
         push(cd) {
             this.cards.push(cd);
             if (this.cards.length > 13) {
@@ -195,6 +223,99 @@ let Hand = (() => {
     };
 })();
 export { Hand };
+export class Bid extends Inspected {
+    static PASS = 0;
+    static DOUBLE = -1;
+    static REDOUBLE = -1;
+    level;
+    suit;
+    alert;
+    description;
+    constructor(opts) {
+        super();
+        if (!opts) {
+            opts = 'P';
+        }
+        if (typeof opts === 'string') {
+            const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
+            if (!m?.groups) {
+                throw new Error(`Invalid bid: "${opts}"`);
+            }
+            const level = m.groups.level ?
+                parseInt(m.groups.level, 10) :
+                {
+                    P: Bid.PASS,
+                    X: Bid.DOUBLE,
+                    XX: Bid.REDOUBLE,
+                }[m.groups.bid];
+            if (typeof level === 'undefined') {
+                throw new Error(`Unknown bid: "${opts}"`);
+            }
+            opts = {
+                level,
+                alert: Boolean(m.groups.alert),
+            };
+            if (m.groups.suit) {
+                opts.suit = {
+                    C: Suit.CLUBS,
+                    D: Suit.DIAMONDS,
+                    H: Suit.HEARTS,
+                    S: Suit.SPADES,
+                    N: Suit.NT,
+                }[m.groups.suit.toUpperCase()];
+            }
+            if (m.groups.description) {
+                opts.description = m.groups.description;
+            }
+        }
+        if (opts.suit) {
+            if ((opts.level < 1) || (opts.level > 7)) {
+                throw new Error(`Invalid level: "${opts.level}"`);
+            }
+        }
+        else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
+            throw new Error(`Invalid level: "${opts.level}"`);
+        }
+        this.level = opts.level;
+        this.suit = opts.suit;
+        this.alert = opts.alert ?? false;
+        this.description = opts.description;
+    }
+    toString(bare = false) {
+        let ret = '';
+        switch (this.level) {
+            case -2:
+                ret = 'XX';
+                break;
+            case -1:
+                ret = 'X';
+                break;
+            case 0:
+                ret = 'P';
+                break;
+            default:
+                ret = `${this.level}${this.suit}`;
+                break;
+        }
+        if (!bare) {
+            if (this.alert) {
+                ret += '!';
+            }
+            if (this.description) {
+                ret += ` (${this.description})`;
+            }
+        }
+        return ret;
+    }
+    toJSON() {
+        return {
+            level: this.level,
+            suit: this.suit,
+            alert: this.alert,
+            description: this.description,
+        };
+    }
+}
 let Deal = (() => {
     let _classSuper = Inspected;
     let _instanceExtraInitializers = [];
@@ -217,6 +338,9 @@ let Deal = (() => {
         }
         static D = 53644737765488792839237440000n;
         num = __runInitializers(this, _instanceExtraInitializers);
+        vuln = Vuln.NONE;
+        dealer = Direction.NORTH;
+        bids = [];
         hands = [
             new Hand('North'), new Hand('East'), new Hand('South'), new Hand('West'),
         ];
@@ -256,6 +380,19 @@ let Deal = (() => {
         get west() {
             return this.hands[3];
         }
+        static fromJSON(o) {
+            if (typeof o === 'string') {
+                o = JSON.parse(o);
+            }
+            const d = new Deal(BigInt(`0x${o.num}`));
+            o.names.forEach((v, i) => {
+                d.hands[i].name = v;
+            });
+            d.vuln = o.vuln;
+            d.dealer = o.dealer;
+            d.bids = o.bids.map(b => new Bid(b));
+            return d;
+        }
         static weight(cards, weights) {
             let tot = 0;
             for (const cd of cards) {
@@ -266,6 +403,13 @@ let Deal = (() => {
                 tot += weights[pos];
             }
             return tot;
+        }
+        randVuln() {
+            const v = Math.floor(Math.random() * 4);
+            this.vuln = Object.values(Vuln)[v];
+        }
+        bid(opts) {
+            this.bids.push(new Bid(opts));
         }
         lin() {
             return `https://www.bridgebase.com/tools/handviewer.html?lin=qx|o${this.num}|md|3${this.south.lin()},${this.west.lin()},${this.north.lin()}|rh||ah|${this.num}|sv|0|pg||`;
@@ -278,15 +422,33 @@ let Deal = (() => {
                 .map(h => `${h.name}: ${h.toString()}`)
                 .join('\n');
         }
+        toJSON() {
+            return {
+                num: this.num.toString(16),
+                vuln: this.vuln,
+                dealer: this.dealer,
+                bids: this.bids.map(b => b.toJSON()),
+                names: this.hands.map(h => h.name),
+            };
+        }
     };
 })();
 export { Deal };
 export function findDeal(filter) {
     let tries = 0;
     while (true) {
-        tries++;
+        if (tries++ > 10000) {
+            throw new Error('Too many tries');
+        }
         const d = new Deal();
-        if (!filter || filter(d, Deal)) {
+        if (!filter) {
+            return [d, tries];
+        }
+        const ret = filter(d, Deal);
+        if (typeof ret !== 'boolean') {
+            throw new Error(`Invalid return: "${ret}"`);
+        }
+        if (ret) {
             return [d, tries];
         }
     }
@@ -298,30 +460,4 @@ export function deals(num, filter) {
         [ret[count++]] = findDeal(filter);
     }
     return ret;
-}
-export function prec2d(deal) {
-    const SUIT_POINTS = [4, 3, 2, 1];
-    const np = deal.north.points;
-    if (np < 11 || np > 15) {
-        return false;
-    }
-    const sp = deal.south.points;
-    if (sp < 11) {
-        return false;
-    }
-    const ns = deal.north.shape;
-    if (ns.spades < 3 || ns.spades > 4 ||
-        ns.hearts < 3 || ns.hearts > 4 ||
-        ns.diamonds > 1 ||
-        ns.clubs > 5) {
-        return false;
-    }
-    if (ns.spades === 3 && ns.hearts === 3) {
-        return false;
-    }
-    if ((ns.clubs === 5) && Deal.weight(deal.north.clubs, SUIT_POINTS) > 3) {
-        return false;
-    }
-    deal.north.name = '2D!';
-    return true;
 }
