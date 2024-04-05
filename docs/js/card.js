@@ -226,7 +226,7 @@ export { Hand };
 export class Bid extends Inspected {
     static PASS = 0;
     static DOUBLE = -1;
-    static REDOUBLE = -1;
+    static REDOUBLE = -2;
     level;
     suit;
     alert;
