@@ -11,6 +11,7 @@ require.config({
 });
 
 const db = new Storage();
+let editor: any = null;
 let model: any = null;
 let work: Worker | null = null;
 let codeLastStored = NaN;
@@ -306,9 +307,9 @@ async function gotMessage(e: MessageEvent): Promise<void> {
 }
 
 db.init().then(async() => {
-  model = await initMonaco('monaco', () => {
+  ([editor, model] = await initMonaco('monaco', () => {
     state.stamp = Date.now();
-  });
+  }));
   state = await db.getState();
   const names = await db.getJSnames();
   names.sort();
@@ -466,7 +467,8 @@ files.onchange = async(ev): Promise<void> => {
       state.name = name;
       // eslint-disable-next-line require-atomic-updates
       state.stamp = code.stamp;
-      model.setValue(code.code);
+      model?.setValue(code.code);
+      editor?.setScrollTop(0, 1);
       nextDeal();
     }
   }
