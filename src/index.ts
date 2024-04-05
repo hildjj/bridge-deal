@@ -25,6 +25,9 @@ const add = document.getElementById('btnAdd') as HTMLButtonElement;
 const bidding = document.getElementById('bidding') as HTMLDivElement;
 const copy = document.getElementById('btnCopy') as HTMLButtonElement;
 const del = document.getElementById('btnDelete') as HTMLButtonElement;
+const diag = document.getElementById('diag') as HTMLDialogElement;
+const diagFilter = document.getElementById('diagFilter') as HTMLInputElement;
+const diagMessage = document.getElementById('diagMessage') as HTMLDivElement;
 const error = document.getElementById('error') as HTMLSpanElement;
 const files = document.getElementById('files') as HTMLSelectElement;
 const nxt = document.getElementById('btnNext') as HTMLButtonElement;
@@ -39,8 +42,9 @@ const points = document.querySelectorAll<HTMLSpanElement>('.points');
 const out = document.querySelectorAll<HTMLSpanElement>('.out');
 
 if (
-  !add || !bidding || !copy || !del || !error || !files || !nxt ||
-  !parResults || !parScore || !prev || !rename || !share || !tries
+  !add || !bidding || !copy || !del || !diag || !diagFilter || !diagMessage ||
+  !error || !files || !nxt || !parResults || !parScore || !prev || !rename ||
+  !share || !tries
 ) {
   throw new Error('Element not found');
 }
@@ -132,6 +136,23 @@ function parContract(str: string): string {
     .replace(/^(?:NS|EW):/, '');
 }
 
+let diagResolve:
+  | ((result: PromiseLike<string | null> | string | null) => void)
+  | null = null;
+diag.onclose = (): void => {
+  diagResolve?.(diag.returnValue ? diagFilter.value : null);
+};
+
+function diagPrompt(msg: string, filter: string): Promise<string | null> {
+  return new Promise(resolve => {
+    diag.returnValue = '';
+    diagMessage.innerText = msg;
+    diagFilter.value = filter;
+    diagResolve = resolve;
+    diag.showModal();
+  });
+}
+
 async function gotMessage(e: MessageEvent): Promise<void> {
   const typ = e.data.type;
   if (typ === 'ready') {
@@ -142,9 +163,17 @@ async function gotMessage(e: MessageEvent): Promise<void> {
     const code = u.searchParams.get('code');
 
     if (name && stamp && code) {
+      const ns = parseInt(stamp, 10);
+      const newJs = await decompressString(code);
       if (fileOption(name)) {
-        // eslint-disable-next-line no-alert
-        name = window.prompt('Replace or rename?', name);
+        // If we already have the same code, just switch to it.
+        const js = await db.getJS(name, ns);
+        if (js?.code === newJs) {
+          fileSelect(name);
+          name = null;
+        } else {
+          name = await diagPrompt('Replace or rename?', name);
+        }
       }
       if (name) {
         if (!fileOption(name)) {
@@ -152,8 +181,8 @@ async function gotMessage(e: MessageEvent): Promise<void> {
         }
         fileSelect(name);
         state.name = name;
-        state.stamp = parseInt(stamp, 10);
-        model.setValue(await decompressString(code));
+        state.stamp = ns;
+        model.setValue(newJs);
       }
     }
 
@@ -325,8 +354,7 @@ nxt.onclick = (): void => {
 };
 
 rename.onclick = async(): Promise<void> => {
-  // eslint-disable-next-line no-alert
-  const name = window.prompt('New name?', state.name);
+  const name = await diagPrompt('New name?', state.name);
   if (name !== null) {
     const opt = files.item(files.selectedIndex);
     if (opt) {
@@ -362,8 +390,7 @@ async function newFilter(): Promise<void> {
     }
   }
 
-  // eslint-disable-next-line no-alert
-  const name = window.prompt('New name?', defName) || defName;
+  const name = await diagPrompt('New name?', defName) || defName;
   files.add(new Option(name));
   model.setValue('return true');
   files.selectedIndex = files.options.length - 1;

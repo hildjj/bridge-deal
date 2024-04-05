@@ -21,6 +21,9 @@ const add = document.getElementById('btnAdd');
 const bidding = document.getElementById('bidding');
 const copy = document.getElementById('btnCopy');
 const del = document.getElementById('btnDelete');
+const diag = document.getElementById('diag');
+const diagFilter = document.getElementById('diagFilter');
+const diagMessage = document.getElementById('diagMessage');
 const error = document.getElementById('error');
 const files = document.getElementById('files');
 const nxt = document.getElementById('btnNext');
@@ -33,8 +36,9 @@ const tries = document.getElementById('tries');
 const holdings = document.querySelectorAll('.holding');
 const points = document.querySelectorAll('.points');
 const out = document.querySelectorAll('.out');
-if (!add || !bidding || !copy || !del || !error || !files || !nxt ||
-    !parResults || !parScore || !prev || !rename || !share || !tries) {
+if (!add || !bidding || !copy || !del || !diag || !diagFilter || !diagMessage ||
+    !error || !files || !nxt || !parResults || !parScore || !prev || !rename ||
+    !share || !tries) {
     throw new Error('Element not found');
 }
 function clear() {
@@ -114,6 +118,19 @@ function parContract(str) {
         .replace(/[0-9]+[CDHSN]/g, n => plusMinus(n))
         .replace(/^(?:NS|EW):/, '');
 }
+let diagResolve = null;
+diag.onclose = () => {
+    diagResolve?.(diag.returnValue ? diagFilter.value : null);
+};
+function diagPrompt(msg, filter) {
+    return new Promise(resolve => {
+        diag.returnValue = '';
+        diagMessage.innerText = msg;
+        diagFilter.value = filter;
+        diagResolve = resolve;
+        diag.showModal();
+    });
+}
 async function gotMessage(e) {
     const typ = e.data.type;
     if (typ === 'ready') {
@@ -122,8 +139,17 @@ async function gotMessage(e) {
         const stamp = u.searchParams.get('stamp');
         const code = u.searchParams.get('code');
         if (name && stamp && code) {
+            const ns = parseInt(stamp, 10);
+            const newJs = await decompressString(code);
             if (fileOption(name)) {
-                name = window.prompt('Replace or rename?', name);
+                const js = await db.getJS(name, ns);
+                if (js?.code === newJs) {
+                    fileSelect(name);
+                    name = null;
+                }
+                else {
+                    name = await diagPrompt('Replace or rename?', name);
+                }
             }
             if (name) {
                 if (!fileOption(name)) {
@@ -131,8 +157,8 @@ async function gotMessage(e) {
                 }
                 fileSelect(name);
                 state.name = name;
-                state.stamp = parseInt(stamp, 10);
-                model.setValue(await decompressString(code));
+                state.stamp = ns;
+                model.setValue(newJs);
             }
         }
         const keys = [...u.searchParams.keys()];
@@ -288,7 +314,7 @@ nxt.onclick = () => {
     nextDeal();
 };
 rename.onclick = async () => {
-    const name = window.prompt('New name?', state.name);
+    const name = await diagPrompt('New name?', state.name);
     if (name !== null) {
         const opt = files.item(files.selectedIndex);
         if (opt) {
@@ -316,7 +342,7 @@ async function newFilter() {
             break;
         }
     }
-    const name = window.prompt('New name?', defName) || defName;
+    const name = await diagPrompt('New name?', defName) || defName;
     files.add(new Option(name));
     model.setValue('return true');
     files.selectedIndex = files.options.length - 1;

@@ -230,7 +230,7 @@ export interface BidJSON {
 export class Bid extends Inspected {
   public static PASS = 0;
   public static DOUBLE = -1;
-  public static REDOUBLE = -1;
+  public static REDOUBLE = -2;
 
   public level: number;
   public suit?: Suit;

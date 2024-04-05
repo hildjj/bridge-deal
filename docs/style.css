@@ -164,3 +164,35 @@ body {
   white-space: nowrap;
   min-width: 100px;
 }
+
+dialog {
+  border-radius: 1.5em;
+  border-color: #999;
+  box-shadow: 5px 5px 20px #999;
+}
+
+dialog label {
+  padding-right: 5px;
+}
+
+dialog input {
+  border-radius: 0.35em;
+}
+
+dialog form, hr {
+  margin-top: 1em;
+}
+
+dialog button {
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 1em;
+  float: right;
+  margin-left: 1em;
+  margin-top: 0;
+}
+
+dialog button:first-of-type {
+  outline: 4px solid lightblue;
+  outline-offset: -4px;
+}
