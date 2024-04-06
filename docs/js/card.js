@@ -39,8 +39,12 @@ export var Suit;
     Suit["DIAMONDS"] = "\u2662";
     Suit["HEARTS"] = "\u2661";
     Suit["SPADES"] = "\u2660";
-    Suit["NT"] = "N";
 })(Suit || (Suit = {}));
+export var NoTrump;
+(function (NoTrump) {
+    NoTrump["NT"] = "N";
+})(NoTrump || (NoTrump = {}));
+const BidSuit = { ...Suit, ...NoTrump };
 export var Vuln;
 (function (Vuln) {
     Vuln["ALL"] = "All";
@@ -119,6 +123,7 @@ let Hand = (() => {
     let _get_diamonds_decorators;
     let _get_clubs_decorators;
     let _get_shape_decorators;
+    let _get_shapeAny_decorators;
     return class Hand extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -128,12 +133,14 @@ let Hand = (() => {
             _get_diamonds_decorators = [lazy];
             _get_clubs_decorators = [lazy];
             _get_shape_decorators = [lazy];
+            _get_shapeAny_decorators = [lazy];
             __esDecorate(this, null, _get_points_decorators, { kind: "getter", name: "points", static: false, private: false, access: { has: obj => "points" in obj, get: obj => obj.points }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _get_spades_decorators, { kind: "getter", name: "spades", static: false, private: false, access: { has: obj => "spades" in obj, get: obj => obj.spades }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _get_hearts_decorators, { kind: "getter", name: "hearts", static: false, private: false, access: { has: obj => "hearts" in obj, get: obj => obj.hearts }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _get_diamonds_decorators, { kind: "getter", name: "diamonds", static: false, private: false, access: { has: obj => "diamonds" in obj, get: obj => obj.diamonds }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _get_clubs_decorators, { kind: "getter", name: "clubs", static: false, private: false, access: { has: obj => "clubs" in obj, get: obj => obj.clubs }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _get_shape_decorators, { kind: "getter", name: "shape", static: false, private: false, access: { has: obj => "shape" in obj, get: obj => obj.shape }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(this, null, _get_shapeAny_decorators, { kind: "getter", name: "shapeAny", static: false, private: false, access: { has: obj => "shapeAny" in obj, get: obj => obj.shapeAny }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
         cards = (__runInitializers(this, _instanceExtraInitializers), []);
@@ -167,11 +174,21 @@ let Hand = (() => {
                 clubs: this.clubs.length,
             };
         }
+        get shapeAny() {
+            return Object
+                .values(this.shape)
+                .sort((a, b) => b - a);
+        }
         get needed() {
             return 13n - BigInt(this.cards.length);
         }
         static ranks(cards) {
             return cards.map(s => s.rank).join('');
+        }
+        shapeStr() {
+            return Object
+                .values(this.shape)
+                .join('');
         }
         isShape(s, h, d, c) {
             const { shape } = this;
@@ -179,6 +196,28 @@ let Hand = (() => {
                 (shape.hearts === h) &&
                 (shape.diamonds === d) &&
                 (shape.clubs === c);
+        }
+        isShapeAny(...nums) {
+            const sa = this.shapeAny;
+            const nums_len = nums.length;
+            for (let i = 0; i < nums_len; i++) {
+                if (sa[i] !== nums[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        hasVoid() {
+            const sa = this.shapeAny;
+            return sa[3] === 0;
+        }
+        hasSingleton() {
+            const sa = this.shapeAny;
+            return sa.includes(1);
+        }
+        hasSingletonOrVoid() {
+            const sa = this.shapeAny;
+            return sa.findIndex(s => (s === 0) || (s === 1)) !== -1;
         }
         *suits() {
             yield ['Spades', this.spades];
@@ -265,11 +304,11 @@ export class Bid extends Inspected {
             };
             if (m.groups.suit) {
                 opts.suit = {
-                    C: Suit.CLUBS,
-                    D: Suit.DIAMONDS,
-                    H: Suit.HEARTS,
-                    S: Suit.SPADES,
-                    N: Suit.NT,
+                    C: BidSuit.CLUBS,
+                    D: BidSuit.DIAMONDS,
+                    H: BidSuit.HEARTS,
+                    S: BidSuit.SPADES,
+                    N: BidSuit.NT,
                 }[m.groups.suit.toUpperCase()];
             }
             if (m.groups.description) {
