@@ -273,7 +273,7 @@ async function gotMessage(e: MessageEvent): Promise<void> {
     copy.disabled = false;
 
     if (e.data.tries) {
-      tries.innerText = `Found deal after ${e.data.tries} tries.`;
+      tries.innerHTML = `Found deal after <code>${e.data.tries.toLocaleString()}</code> tries.`;
     }
     return;
   }
