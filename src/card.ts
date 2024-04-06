@@ -1,4 +1,4 @@
-const MAX_TRIES = 100000;
+const MAX_TRIES = 1000000;
 
 export enum Suit {
   CLUBS = '♣',
@@ -488,7 +488,7 @@ export function findDeal(filter?: DealPredicate): [Deal, number] {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     if (tries++ > MAX_TRIES) {
-      throw new Error('Too many tries');
+      throw new Error(`Too many tries: ${tries}`);
     }
     const d = new Deal();
     if (!filter) {
