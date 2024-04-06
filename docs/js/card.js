@@ -32,7 +32,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-const MAX_TRIES = 100000;
+const MAX_TRIES = 1000000;
 export var Suit;
 (function (Suit) {
     Suit["CLUBS"] = "\u2663";
@@ -449,7 +449,7 @@ export function findDeal(filter) {
     let tries = 0;
     while (true) {
         if (tries++ > MAX_TRIES) {
-            throw new Error('Too many tries');
+            throw new Error(`Too many tries: ${tries}`);
         }
         const d = new Deal();
         if (!filter) {
