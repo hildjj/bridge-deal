@@ -1,5 +1,11 @@
 "use strict";
 var Module = null;
+let KILL = Object
+    .keys(globalThis)
+    .map(k => `let ${k} = undefined;`)
+    .join('\n');
+KILL += 'globalThis = undefined; global = undefined;';
+const pm = postMessage;
 const wasmReady = new Promise((resolve, reject) => {
     Module = {
         onAbort(...args) {
@@ -32,7 +38,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
         const code = await db.getJS(e.data.name, e.data.stamp);
         if (code) {
             if (code.code.trim()) {
-                filter = new Function('deal', 'Deal', code.code);
+                filter = new Function('deal', 'Deal', KILL + code.code);
             }
             else {
                 filter = noOp;
@@ -48,7 +54,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
                 [d, tries] = findDeal(filter);
             }
             catch (error) {
-                postMessage({
+                pm({
                     type: 'error',
                     error,
                 });
@@ -56,7 +62,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
             }
         }
         const pbn = d.pbn();
-        postMessage({
+        pm({
             type: 'deal',
             num: d.num,
             deal: d.toJSON(),
@@ -65,9 +71,9 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
         });
         const tricks = JSON.parse(handleDDSRequest(pbn, null, 'm', null, d.vuln, null, null, null, d.num.toString(16), null));
         tricks.type = 'tricks';
-        postMessage(tricks);
+        pm(tricks);
     });
-    postMessage({
+    pm({
         type: 'ready',
     });
 }, console.error);

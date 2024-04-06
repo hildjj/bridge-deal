@@ -3,6 +3,16 @@
 // Has to be var for stinky non-modularized emscripten output.
 // eslint-disable-next-line no-var
 var Module: any = null;
+
+// This is not actually secure, but try to cut down on the easiest attacks.
+let KILL = Object
+  .keys(globalThis)
+  .map(k => `let ${k} = undefined;`)
+  .join('\n');
+KILL += 'globalThis = undefined; global = undefined;';
+
+const pm = postMessage;
+
 const wasmReady = new Promise<void>((resolve, reject) => {
   // eslint-disable-next-line no-var
   Module = {
@@ -53,7 +63,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
       if (code.code.trim()) {
         // eslint-disable-next-line @stylistic/max-len
         // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-        filter = new Function('deal', 'Deal', code.code) as DealPredicate;
+        filter = new Function('deal', 'Deal', KILL + code.code) as DealPredicate;
       } else {
         filter = noOp;
       }
@@ -66,7 +76,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
       try {
         [d, tries] = findDeal(filter);
       } catch (error) {
-        postMessage({
+        pm({
           type: 'error',
           error,
         });
@@ -75,7 +85,7 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
     }
 
     const pbn = d.pbn();
-    postMessage({
+    pm({
       type: 'deal',
       num: d.num,
       deal: d.toJSON(),
@@ -85,10 +95,10 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
 
     const tricks = JSON.parse(handleDDSRequest(pbn, null, 'm', null, d.vuln, null, null, null, d.num.toString(16), null));
     tricks.type = 'tricks';
-    postMessage(tricks);
+    pm(tricks);
   });
 
-  postMessage({
+  pm({
     type: 'ready',
   });
 // eslint-disable-next-line no-console

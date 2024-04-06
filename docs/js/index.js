@@ -8,6 +8,7 @@ require.config({
     },
 });
 const db = new Storage();
+let editor = null;
 let model = null;
 let work = null;
 let codeLastStored = NaN;
@@ -270,9 +271,9 @@ async function gotMessage(e) {
     error.innerText = `Invalid message type: "${typ}"`;
 }
 db.init().then(async () => {
-    model = await initMonaco('monaco', () => {
+    ([editor, model] = await initMonaco('monaco', () => {
         state.stamp = Date.now();
-    });
+    }));
     state = await db.getState();
     const names = await db.getJSnames();
     names.sort();
@@ -408,7 +409,8 @@ files.onchange = async (ev) => {
         if (code) {
             state.name = name;
             state.stamp = code.stamp;
-            model.setValue(code.code);
+            model?.setValue(code.code);
+            editor?.setScrollTop(0, 1);
             nextDeal();
         }
     }

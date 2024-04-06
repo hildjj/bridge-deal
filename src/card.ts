@@ -340,6 +340,13 @@ export interface DealJSON {
 export class Deal extends Inspected {
   // 52! / (13!)**4
   private static D = 53_644_737_765_488_792_839_237_440_000n;
+  private static randBuf = new Uint8Array(16);
+  private static randBI = new BigUint64Array(
+    this.randBuf.buffer,
+    this.randBuf.byteOffset,
+    this.randBuf.byteLength / BigUint64Array.BYTES_PER_ELEMENT
+  );
+
   public num: bigint;
   public vuln: Vuln = Vuln.NONE;
   public dealer: Direction = Direction.NORTH;
@@ -351,13 +358,7 @@ export class Deal extends Inspected {
   public constructor(num?: bigint) {
     super();
     if ((num === undefined) || (num < 0n)) {
-      const buf = new Uint8Array(12);
-      crypto.getRandomValues(buf);
-      const hex = Array.prototype.map.call(
-        buf,
-        i => i.toString(16).padStart(2, '0')
-      ).join('');
-      num = BigInt(`0x${hex}`) % Deal.D; // Is `% D` right?
+      num = Deal.randD();
     }
     this.num = num;
 
@@ -430,6 +431,11 @@ export class Deal extends Inspected {
     return tot;
   }
 
+  private static randD(): bigint {
+    crypto.getRandomValues(this.randBuf);
+    return ((this.randBI[0] << 64n) | this.randBI[1]) % this.D;
+  }
+
   public randVuln(): void {
     const v = Math.floor(Math.random() * 4);
     this.vuln = Object.values(Vuln)[v];
@@ -478,7 +484,7 @@ export function findDeal(filter?: DealPredicate): [Deal, number] {
     if (!filter) {
       return [d, tries];
     }
-    const ret = filter(d, Deal);
+    const ret = filter.call({}, d, Deal);
     if (typeof ret !== 'boolean') {
       throw new Error(`Invalid return: "${ret}"`);
     }
