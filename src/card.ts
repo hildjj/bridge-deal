@@ -28,8 +28,6 @@ export enum Direction {
   WEST = 'west',
 }
 
-export type SuitStr = 'clubs' | 'diamonds' | 'hearts' | 'spades';
-
 let rnk = 0;
 export const RankValues = {
   2: rnk++,
@@ -54,6 +52,9 @@ export interface Shape {
   diamonds: number;
   clubs: number;
 }
+export type SuitStr = keyof Shape;
+
+export type ShapeAny = [number, number, number, number];
 
 function lazy<T>(
   fn: (...args: any[]) => any,
@@ -158,10 +159,10 @@ export class Hand extends Inspected {
   }
 
   @lazy
-  public get shapeAny(): number[] {
+  public get shapeAny(): ShapeAny {
     return Object
       .values(this.shape)
-      .sort((a: number, b: number) => b - a);
+      .sort((a: number, b: number) => b - a) as ShapeAny;
   }
 
   public get needed(): bigint {
@@ -234,13 +235,12 @@ export class Hand extends Inspected {
   }
 
   public balanced(): boolean {
-    const lens = [
-      this.spades.length,
-      this.hearts.length,
-      this.diamonds.length,
-      this.clubs.length,
-    ];
-    return !lens.some(s => s < 2 || s > 5);
+    const {shapeAny} = this;
+    return (shapeAny[0] < 6) && (shapeAny[3] > 1);
+  }
+
+  public balancedNoM(): boolean {
+    return this.balanced() && this.spades.length < 5 && this.hearts.length < 5;
   }
 
   public push(cd: Card): void {
@@ -302,7 +302,7 @@ export class Bid extends Inspected {
     }
 
     if (typeof opts === 'string') {
-      const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
+      const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN♣♢♡♠]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
       if (!m?.groups) {
         throw new Error(`Invalid bid: "${opts}"`);
       }
@@ -327,6 +327,10 @@ export class Bid extends Inspected {
           H: BidSuit.HEARTS,
           S: BidSuit.SPADES,
           N: BidSuit.NT,
+          [BidSuit.CLUBS]: BidSuit.CLUBS,
+          [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
+          [BidSuit.HEARTS]: BidSuit.HEARTS,
+          [BidSuit.SPADES]: BidSuit.SPADES,
         }[m.groups.suit.toUpperCase()];
       }
       if (m.groups.description) {

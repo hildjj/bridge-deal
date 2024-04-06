@@ -13,11 +13,12 @@ export function initMonaco(
       editor = monaco.editor.create(
         document.getElementById(elemId),
         {
-          language: 'javascript',
-          theme: 'vs-dark',
+          detectIndentation: false,
           fontSize: 16,
-          tabSize: 2,
+          language: 'javascript',
           minimap: {enabled: false},
+          tabSize: 2,
+          theme: 'vs-dark',
         }
       );
       model = editor.getModel();
