@@ -21,6 +21,7 @@ const history = [];
 const add = document.getElementById('btnAdd');
 const bidding = document.getElementById('bidding');
 const copy = document.getElementById('btnCopy');
+const copyFilter = document.getElementById('btnCopyFilter');
 const del = document.getElementById('btnDelete');
 const diag = document.getElementById('diag');
 const diagFilter = document.getElementById('diagFilter');
@@ -37,9 +38,9 @@ const tries = document.getElementById('tries');
 const holdings = document.querySelectorAll('.holding');
 const points = document.querySelectorAll('.points');
 const out = document.querySelectorAll('.out');
-if (!add || !bidding || !copy || !del || !diag || !diagFilter || !diagMessage ||
-    !error || !files || !nxt || !parResults || !parScore || !prev || !rename ||
-    !share || !tries) {
+if (!add || !bidding || !copy || !copyFilter || !del || !diag || !diagFilter ||
+    !diagMessage || !error || !files || !nxt || !parResults || !parScore ||
+    !prev || !rename || !share || !tries) {
     throw new Error('Element not found');
 }
 function clear() {
@@ -326,6 +327,17 @@ rename.onclick = async () => {
         state.stamp = Date.now();
         nextDeal();
     }
+};
+copyFilter.onclick = async () => {
+    const name = await diagPrompt('Save as?', state.name);
+    if (!name) {
+        return;
+    }
+    state.name = name;
+    state.stamp = Date.now();
+    files.add(new Option(name));
+    files.selectedIndex = files.options.length - 1;
+    nextDeal();
 };
 share.onclick = async () => {
     const u = new URL(window.location.href);

@@ -25,6 +25,7 @@ const history: bigint[] = [];
 const add = document.getElementById('btnAdd') as HTMLButtonElement;
 const bidding = document.getElementById('bidding') as HTMLDivElement;
 const copy = document.getElementById('btnCopy') as HTMLButtonElement;
+const copyFilter = document.getElementById('btnCopyFilter') as HTMLButtonElement;
 const del = document.getElementById('btnDelete') as HTMLButtonElement;
 const diag = document.getElementById('diag') as HTMLDialogElement;
 const diagFilter = document.getElementById('diagFilter') as HTMLInputElement;
@@ -43,9 +44,9 @@ const points = document.querySelectorAll<HTMLSpanElement>('.points');
 const out = document.querySelectorAll<HTMLSpanElement>('.out');
 
 if (
-  !add || !bidding || !copy || !del || !diag || !diagFilter || !diagMessage ||
-  !error || !files || !nxt || !parResults || !parScore || !prev || !rename ||
-  !share || !tries
+  !add || !bidding || !copy || !copyFilter || !del || !diag || !diagFilter ||
+  !diagMessage || !error || !files || !nxt || !parResults || !parScore ||
+  !prev || !rename || !share || !tries
 ) {
   throw new Error('Element not found');
 }
@@ -369,6 +370,21 @@ rename.onclick = async(): Promise<void> => {
 
     nextDeal();
   }
+};
+
+copyFilter.onclick = async(): Promise<void> => {
+  const name = await diagPrompt('Save as?', state.name);
+  if (!name) {
+    return;
+  }
+  // eslint-disable-next-line require-atomic-updates
+  state.name = name;
+  // eslint-disable-next-line require-atomic-updates
+  state.stamp = Date.now();
+  files.add(new Option(name));
+  files.selectedIndex = files.options.length - 1;
+
+  nextDeal();
 };
 
 share.onclick = async(): Promise<void> => {
