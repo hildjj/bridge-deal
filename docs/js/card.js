@@ -337,6 +337,8 @@ let Deal = (() => {
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
         static D = 53644737765488792839237440000n;
+        static randBuf = new Uint8Array(16);
+        static randBI = new BigUint64Array(this.randBuf.buffer, this.randBuf.byteOffset, this.randBuf.byteLength / BigUint64Array.BYTES_PER_ELEMENT);
         num = __runInitializers(this, _instanceExtraInitializers);
         vuln = Vuln.NONE;
         dealer = Direction.NORTH;
@@ -347,10 +349,7 @@ let Deal = (() => {
         constructor(num) {
             super();
             if ((num === undefined) || (num < 0n)) {
-                const buf = new Uint8Array(12);
-                crypto.getRandomValues(buf);
-                const hex = Array.prototype.map.call(buf, i => i.toString(16).padStart(2, '0')).join('');
-                num = BigInt(`0x${hex}`) % Deal.D;
+                num = Deal.randD();
             }
             this.num = num;
             let K = Deal.D;
@@ -404,6 +403,10 @@ let Deal = (() => {
             }
             return tot;
         }
+        static randD() {
+            crypto.getRandomValues(this.randBuf);
+            return ((this.randBI[0] << 64n) | this.randBI[1]) % this.D;
+        }
         randVuln() {
             const v = Math.floor(Math.random() * 4);
             this.vuln = Object.values(Vuln)[v];
@@ -444,7 +447,7 @@ export function findDeal(filter) {
         if (!filter) {
             return [d, tries];
         }
-        const ret = filter(d, Deal);
+        const ret = filter.call({}, d, Deal);
         if (typeof ret !== 'boolean') {
             throw new Error(`Invalid return: "${ret}"`);
         }
