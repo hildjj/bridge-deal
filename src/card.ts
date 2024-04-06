@@ -22,21 +22,21 @@ export enum Direction {
 
 export type SuitStr = 'clubs' | 'diamonds' | 'hearts' | 'spades';
 
-let c = 0;
+let rnk = 0;
 export const RankValues = {
-  2: c++,
-  3: c++,
-  4: c++,
-  5: c++,
-  6: c++,
-  7: c++,
-  8: c++,
-  9: c++,
-  T: c++,
-  J: c++,
-  Q: c++,
-  K: c++,
-  A: c++,
+  2: rnk++,
+  3: rnk++,
+  4: rnk++,
+  5: rnk++,
+  6: rnk++,
+  7: rnk++,
+  8: rnk++,
+  9: rnk++,
+  T: rnk++,
+  J: rnk++,
+  Q: rnk++,
+  K: rnk++,
+  A: rnk++,
 };
 export type Rank = keyof typeof RankValues;
 
@@ -94,12 +94,12 @@ export class Card extends Inspected {
   }
 }
 
-c = 51;
+rnk = 51;
 const Deck = Object
   .values(Suit)
   .flatMap(
     s => (Object.keys(RankValues) as Rank[])
-      .map(r => new Card(r, s, c--))
+      .map(r => new Card(r, s, rnk--))
   );
 
 export class Hand extends Inspected {
@@ -154,6 +154,14 @@ export class Hand extends Inspected {
 
   public static ranks(cards: Card[]): string {
     return cards.map(s => s.rank).join('');
+  }
+
+  public isShape(s: number, h: number, d: number, c: number): boolean {
+    const {shape} = this;
+    return (shape.spades === s) &&
+      (shape.hearts === h) &&
+      (shape.diamonds === d) &&
+      (shape.clubs === c);
   }
 
   public *suits(): Generator<[name: string, cards: Card[]]> {

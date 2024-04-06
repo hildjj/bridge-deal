@@ -54,21 +54,21 @@ export var Direction;
     Direction["SOUTH"] = "south";
     Direction["WEST"] = "west";
 })(Direction || (Direction = {}));
-let c = 0;
+let rnk = 0;
 export const RankValues = {
-    2: c++,
-    3: c++,
-    4: c++,
-    5: c++,
-    6: c++,
-    7: c++,
-    8: c++,
-    9: c++,
-    T: c++,
-    J: c++,
-    Q: c++,
-    K: c++,
-    A: c++,
+    2: rnk++,
+    3: rnk++,
+    4: rnk++,
+    5: rnk++,
+    6: rnk++,
+    7: rnk++,
+    8: rnk++,
+    9: rnk++,
+    T: rnk++,
+    J: rnk++,
+    Q: rnk++,
+    K: rnk++,
+    A: rnk++,
 };
 function lazy(fn, desc) {
     return function (...args) {
@@ -104,11 +104,11 @@ export class Card extends Inspected {
         return `${this.rank}${this.suit}`;
     }
 }
-c = 51;
+rnk = 51;
 const Deck = Object
     .values(Suit)
     .flatMap(s => Object.keys(RankValues)
-    .map(r => new Card(r, s, c--)));
+    .map(r => new Card(r, s, rnk--)));
 let Hand = (() => {
     let _classSuper = Inspected;
     let _instanceExtraInitializers = [];
@@ -171,6 +171,13 @@ let Hand = (() => {
         }
         static ranks(cards) {
             return cards.map(s => s.rank).join('');
+        }
+        isShape(s, h, d, c) {
+            const { shape } = this;
+            return (shape.spades === s) &&
+                (shape.hearts === h) &&
+                (shape.diamonds === d) &&
+                (shape.clubs === c);
         }
         *suits() {
             yield ['Spades', this.spades];
