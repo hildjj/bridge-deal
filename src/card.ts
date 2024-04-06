@@ -5,8 +5,14 @@ export enum Suit {
   DIAMONDS = '♢',
   HEARTS = '♡',
   SPADES = '♠',
+}
+
+export enum NoTrump {
   NT = 'N',
 }
+
+export type BidSuit = NoTrump | Suit;
+const BidSuit = {...Suit, ...NoTrump};
 
 export enum Vuln {
   ALL = 'All',
@@ -73,6 +79,7 @@ export class Inspected {
   }
 }
 
+// #region Cards
 export class Card extends Inspected {
   public static POINTS: {
     [key: string]: number;
@@ -150,6 +157,13 @@ export class Hand extends Inspected {
     };
   }
 
+  @lazy
+  public get shapeAny(): number[] {
+    return Object
+      .values(this.shape)
+      .sort((a: number, b: number) => b - a);
+  }
+
   public get needed(): bigint {
     return 13n - BigInt(this.cards.length);
   }
@@ -158,12 +172,44 @@ export class Hand extends Inspected {
     return cards.map(s => s.rank).join('');
   }
 
+  public shapeStr(): string {
+    return Object
+      .values(this.shape)
+      .join('');
+  }
+
   public isShape(s: number, h: number, d: number, c: number): boolean {
     const {shape} = this;
     return (shape.spades === s) &&
       (shape.hearts === h) &&
       (shape.diamonds === d) &&
       (shape.clubs === c);
+  }
+
+  public isShapeAny(...nums: number[]): boolean {
+    const sa = this.shapeAny;
+    const nums_len = nums.length;
+    for (let i = 0; i < nums_len; i++) {
+      if (sa[i] !== nums[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public hasVoid(): boolean {
+    const sa = this.shapeAny;
+    return sa[3] === 0;
+  }
+
+  public hasSingleton(): boolean {
+    const sa = this.shapeAny;
+    return sa.includes(1);
+  }
+
+  public hasSingletonOrVoid(): boolean {
+    const sa = this.shapeAny;
+    return sa.findIndex(s => (s === 0) || (s === 1)) !== -1;
   }
 
   public *suits(): Generator<[name: string, cards: Card[]]> {
@@ -223,16 +269,17 @@ export class Hand extends Inspected {
   }
 }
 
+// #region Bidding
 export interface BidOptions {
   level: number;
-  suit?: Suit;
+  suit?: BidSuit;
   alert?: boolean;
   description?: string;
 }
 
 export interface BidJSON {
   level: number;
-  suit?: Suit;
+  suit?: BidSuit;
   alert: boolean;
   description?: string;
 }
@@ -243,7 +290,7 @@ export class Bid extends Inspected {
   public static REDOUBLE = -2;
 
   public level: number;
-  public suit?: Suit;
+  public suit?: BidSuit;
   public alert: boolean;
   public description: string | undefined;
 
@@ -275,11 +322,11 @@ export class Bid extends Inspected {
       };
       if (m.groups.suit) {
         opts.suit = {
-          C: Suit.CLUBS,
-          D: Suit.DIAMONDS,
-          H: Suit.HEARTS,
-          S: Suit.SPADES,
-          N: Suit.NT,
+          C: BidSuit.CLUBS,
+          D: BidSuit.DIAMONDS,
+          H: BidSuit.HEARTS,
+          S: BidSuit.SPADES,
+          N: BidSuit.NT,
         }[m.groups.suit.toUpperCase()];
       }
       if (m.groups.description) {
@@ -339,6 +386,7 @@ export class Bid extends Inspected {
   }
 }
 
+// #region Deal
 export interface DealJSON {
   num: string;
   vuln: Vuln;
