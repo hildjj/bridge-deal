@@ -4,9 +4,11 @@ class Holder {
     #accept = undefined;
     #depth;
     #vars;
-    constructor(depth, vars) {
+    #top;
+    constructor(depth, vars, top = false) {
         this.#depth = depth;
         this.#vars = vars;
+        this.#top = top;
     }
     add(rule, not) {
         if (typeof rule !== 'string') {
@@ -43,7 +45,7 @@ class Holder {
         if (this.#accept) {
             ret += this.#accept.toString();
         }
-        else {
+        else if (!this.#top) {
             ret += `${this.indent(1)}return false;\n`;
         }
         return ret;
@@ -55,7 +57,7 @@ class Holder {
 class Dir extends Holder {
     #dir;
     constructor(d, vars) {
-        super(-1, vars);
+        super(-1, vars, true);
         this.#dir = d;
     }
     toString() {

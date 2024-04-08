@@ -105,6 +105,7 @@ part
     }
   / "balanced5" { return 'dir.balanced()'; }
   / "balanced" { return 'dir.balancedNoM()'; }
+  / cards
 
 hcp
   = @n:$([0-9] [0-9]?) &{ return parseInt(n, 10) < 37; }
@@ -159,6 +160,20 @@ distribution
     }
     return `dir.isShape(${dist.join(', ')})`
   }
+
+cards
+  = sc:suitCards|1..4, __| {
+    return '(' + sc.join(' && ') + ')';
+  }
+
+suitCards
+  = cards:$(suit card+) {
+    return `dir.hasCards('${cards}')`;
+  }
+
+card
+  = [2-9TJQKA]
+
 __
   = $WS+
 

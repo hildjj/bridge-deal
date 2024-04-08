@@ -23,10 +23,12 @@ class Holder {
   #accept: Accept | undefined = undefined;
   #depth: number;
   #vars: Set<string>;
+  #top: boolean;
 
-  public constructor(depth: number, vars: Set<string>) {
+  public constructor(depth: number, vars: Set<string>, top = false) {
     this.#depth = depth;
     this.#vars = vars;
+    this.#top = top;
   }
 
   public add(rule: VarMap | string, not: boolean): Holder {
@@ -63,9 +65,10 @@ class Holder {
     }
     if (this.#accept) {
       ret += this.#accept.toString();
-    } else {
+    } else if (!this.#top) {
       ret += `${this.indent(1)}return false;\n`;
     }
+
     return ret;
   }
 
@@ -78,7 +81,7 @@ class Dir extends Holder {
   #dir: Direction;
 
   public constructor(d: Direction, vars: Set<string>) {
-    super(-1, vars);
+    super(-1, vars, true);
     this.#dir = d;
   }
 
