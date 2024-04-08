@@ -251,7 +251,8 @@ export class Hand extends Inspected {
 
   public balanced(): boolean {
     const {shapeAny} = this;
-    return (shapeAny[0] < 6) && (shapeAny[3] > 1);
+    return (shapeAny[0] < 6) && (shapeAny[3] > 1) &&
+      !((shapeAny[0] === 5) && (shapeAny[1] === 4));
   }
 
   public balancedNoM(): boolean {
