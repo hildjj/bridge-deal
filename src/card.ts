@@ -213,6 +213,21 @@ export class Hand extends Inspected {
     return sa.findIndex(s => (s === 0) || (s === 1)) !== -1;
   }
 
+  public hasCards(cards: string): boolean {
+    const suit = {
+      C: this.clubs,
+      D: this.diamonds,
+      H: this.hearts,
+      S: this.spades,
+    }[cards[0]];
+    for (const c of cards.slice(1)) {
+      if (!suit?.some(card => card.rank === c)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public *suits(): Generator<[name: string, cards: Card[]]> {
     yield ['Spades', this.spades];
     yield ['Hearts', this.hearts];
@@ -424,6 +439,7 @@ export class Deal extends Inspected {
     }
     this.num = num;
 
+    // See: http://www.rpbridge.net/7z68.htm
     let K = Deal.D;
     let I = this.num;
     for (let C = 52n; C > 0; C--) {

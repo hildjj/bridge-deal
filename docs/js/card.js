@@ -219,6 +219,20 @@ let Hand = (() => {
             const sa = this.shapeAny;
             return sa.findIndex(s => (s === 0) || (s === 1)) !== -1;
         }
+        hasCards(cards) {
+            const suit = {
+                C: this.clubs,
+                D: this.diamonds,
+                H: this.hearts,
+                S: this.spades,
+            }[cards[0]];
+            for (const c of cards.slice(1)) {
+                if (!suit?.some(card => card.rank === c)) {
+                    return false;
+                }
+            }
+            return true;
+        }
         *suits() {
             yield ['Spades', this.spades];
             yield ['Hearts', this.hearts];
