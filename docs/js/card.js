@@ -253,7 +253,8 @@ let Hand = (() => {
         }
         balanced() {
             const { shapeAny } = this;
-            return (shapeAny[0] < 6) && (shapeAny[3] > 1);
+            return (shapeAny[0] < 6) && (shapeAny[3] > 1) &&
+                !((shapeAny[0] === 5) && (shapeAny[1] === 4));
         }
         balancedNoM() {
             return this.balanced() && this.spades.length < 5 && this.hearts.length < 5;

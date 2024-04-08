@@ -428,7 +428,7 @@ async function newFilter(): Promise<void> {
 
   const name = await diagPrompt('New name?', defName) || defName;
   files.add(new Option(name));
-  model.setValue('return true');
+  model.setValue('');
   files.selectedIndex = files.options.length - 1;
   state.name = name;
   state.stamp = Date.now();
