@@ -264,6 +264,7 @@ async function gotMessage(e) {
     }
     if (typ === 'error') {
         if (e.data.location) {
+            error.innerText = 'Deal syntax error';
             const { start, end } = e.data.location;
             monaco.editor.setModelMarkers(model, 'web', [{
                     startLineNumber: start.line,
