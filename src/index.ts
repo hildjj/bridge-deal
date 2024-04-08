@@ -67,7 +67,7 @@ function clear(): void {
   error.innerText = '';
   parResults.innerText = '';
   parScore.innerText = '';
-  monaco?.editor.setModelMarkers(model, 'web', []);
+  monaco.editor.removeAllMarkers('web');
 }
 
 function snap(): string {
@@ -317,7 +317,18 @@ async function gotMessage(e: MessageEvent): Promise<void> {
 db.init().then(async() => {
   ([editor, model, monaco] = await initMonaco('monaco', () => {
     state.stamp = Date.now();
+    monaco.editor.removeAllMarkers('web');
   }));
+
+  editor.addAction({
+    id: 'bridge-deal-next',
+    label: 'Next Deal',
+    keybindings: [
+      monaco.KeyMod.WinCtrl | monaco.KeyCode.KeyN,
+    ],
+    contextMenuGroupId: 'navigation',
+    run: () => nextDeal(),
+  });
   state = await db.getState();
   const names = await db.getJSnames();
   names.sort();
