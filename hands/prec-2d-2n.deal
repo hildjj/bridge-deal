@@ -1,0 +1,13 @@
+north
+  %points = 4, 3, 2, 1
+  !3H, 3S
+  // With good clubs and only one 4M, open 2C
+  !5C, 3M, C%points > 3
+  11-15, <2D, 3-4M, 4-5C
+  bid 2D!: 11-15, roughly 4414
+
+bid P
+
+south
+  11+
+  bid 2N: 11+, forcing one round

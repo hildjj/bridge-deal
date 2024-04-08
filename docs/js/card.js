@@ -44,7 +44,7 @@ export var NoTrump;
 (function (NoTrump) {
     NoTrump["NT"] = "N";
 })(NoTrump || (NoTrump = {}));
-const BidSuit = { ...Suit, ...NoTrump };
+export const BidSuit = { ...Suit, ...NoTrump };
 export var Vuln;
 (function (Vuln) {
     Vuln["ALL"] = "All";
@@ -470,9 +470,16 @@ let Deal = (() => {
             return `N:${this.north.pbn()} ${this.east.pbn()} ${this.south.pbn()} ${this.west.pbn()}`;
         }
         toString() {
-            return this.hands
+            let ret = `Dealer: ${this.dealer}, Vuln: ${this.vuln}\n`;
+            ret += this.hands
                 .map(h => `${h.name}: ${h.toString()}`)
                 .join('\n');
+            ret += '\n';
+            if (this.bids.length) {
+                ret += this.bids.map(b => b.toString()).join('-');
+                ret += '\n';
+            }
+            return ret;
         }
         toJSON() {
             return {

@@ -12,7 +12,7 @@ export enum NoTrump {
 }
 
 export type BidSuit = NoTrump | Suit;
-const BidSuit = {...Suit, ...NoTrump};
+export const BidSuit = {...Suit, ...NoTrump};
 
 export enum Vuln {
   ALL = 'All',
@@ -516,9 +516,16 @@ export class Deal extends Inspected {
   }
 
   public toString(): string {
-    return this.hands
+    let ret = `Dealer: ${this.dealer}, Vuln: ${this.vuln}\n`;
+    ret += this.hands
       .map(h => `${h.name}: ${h.toString()}`)
       .join('\n');
+    ret += '\n';
+    if (this.bids.length) {
+      ret += this.bids.map(b => b.toString()).join('-');
+      ret += '\n';
+    }
+    return ret;
   }
 
   public toJSON(): DealJSON {

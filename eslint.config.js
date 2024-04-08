@@ -8,7 +8,8 @@ import ts from '@cto.af/eslint-config/ts.js';
 export default [
   {
     ignores: [
-      'lib/**',
+      'docs/**/*.js',
+      'src/deal.js',
       'hands/**',
       'calldds.js',
       'ddummy6.cjs',
@@ -27,4 +28,12 @@ export default [
   ...ts,
   ...jsdoc_ts,
   ...markdown,
+  {
+    files: [
+      '**/*.ts',
+    ],
+    rules: {
+      '@stylistic/block-spacing': ['error', 'never'],
+    },
+  },
 ];
