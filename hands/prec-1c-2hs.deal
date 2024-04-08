@@ -1,0 +1,15 @@
+north
+  !22-23, balanced
+  16+
+  bid 1C!: 16+, artificial
+
+bid P
+
+south
+  $suit = H
+  4-7, 6H
+
+  $suit = S
+  4-7, 6S
+
+  bid 2${suit}: 4-7, 6${suit}

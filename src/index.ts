@@ -3,16 +3,10 @@ import {compressString, decompressString} from './encode.js';
 import {Deal} from './card.js';
 import {initMonaco} from './monaco.js';
 
-// @ts-expect-error require is provided by loader.min.js.
-require.config({
-  paths: {
-    vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs',
-  },
-});
-
 const db = new Storage();
 let editor: any = null;
 let model: any = null;
+let monaco: any = null;
 let work: Worker | null = null;
 let codeLastStored = NaN;
 let state: State = {
@@ -73,6 +67,7 @@ function clear(): void {
   error.innerText = '';
   parResults.innerText = '';
   parScore.innerText = '';
+  monaco?.editor.setModelMarkers(model, 'web', []);
 }
 
 function snap(): string {
@@ -300,7 +295,19 @@ async function gotMessage(e: MessageEvent): Promise<void> {
   }
 
   if (typ === 'error') {
-    error.innerText = e.data.error.message;
+    if (e.data.location) {
+      const {start, end} = e.data.location;
+      monaco.editor.setModelMarkers(model, 'web', [{
+        startLineNumber: start.line,
+        startColumn: start.column,
+        endLineNumber: end.line,
+        endColumn: end.column,
+        message: e.data.error.message,
+        severity: monaco.MarkerSeverity.Error,
+      }]);
+    } else {
+      error.innerText = e.data.error.message;
+    }
     return;
   }
 
@@ -308,7 +315,7 @@ async function gotMessage(e: MessageEvent): Promise<void> {
 }
 
 db.init().then(async() => {
-  ([editor, model] = await initMonaco('monaco', () => {
+  ([editor, model, monaco] = await initMonaco('monaco', () => {
     state.stamp = Date.now();
   }));
   state = await db.getState();

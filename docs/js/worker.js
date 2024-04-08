@@ -1,10 +1,5 @@
 "use strict";
 var Module = null;
-let KILL = Object
-    .keys(globalThis)
-    .map(k => `let ${k} = undefined;`)
-    .join('\n');
-KILL += 'globalThis = undefined; global = undefined;';
 const pm = postMessage;
 const wasmReady = new Promise((resolve, reject) => {
     Module = {
@@ -17,7 +12,12 @@ const wasmReady = new Promise((resolve, reject) => {
     };
     importScripts('./dds.js');
 });
-Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async ([{ Deal, findDeal, }, { Storage, }]) => {
+Promise.all([
+    import('./card.js'),
+    import('./storage.js'),
+    import('./deal.js'),
+    wasmReady,
+]).then(async ([{ Deal, findDeal, }, { Storage, }, { parse, }]) => {
     const db = new Storage();
     await db.init();
     const handleDDSRequest = Module.cwrap('handleDDSRequest', 'string', [
@@ -38,7 +38,20 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
         const code = await db.getJS(e.data.name, e.data.stamp);
         if (code) {
             if (code.code.trim()) {
-                filter = new Function('deal', 'Deal', KILL + code.code);
+                try {
+                    const src = parse(code.code, {
+                        grammarSource: 'web',
+                    });
+                    filter = new Function('deal', 'Deal', src);
+                }
+                catch (error) {
+                    pm({
+                        type: 'error',
+                        error,
+                        location: error.location,
+                    });
+                    return;
+                }
             }
             else {
                 filter = noOp;

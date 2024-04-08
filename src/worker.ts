@@ -4,13 +4,6 @@
 // eslint-disable-next-line no-var
 var Module: any = null;
 
-// This is not actually secure, but try to cut down on the easiest attacks.
-let KILL = Object
-  .keys(globalThis)
-  .map(k => `let ${k} = undefined;`)
-  .join('\n');
-KILL += 'globalThis = undefined; global = undefined;';
-
 const pm = postMessage;
 
 const wasmReady = new Promise<void>((resolve, reject) => {
@@ -27,11 +20,19 @@ const wasmReady = new Promise<void>((resolve, reject) => {
   importScripts('./dds.js'); // Magic happens to add to Module.
 });
 
-Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async([{
+Promise.all([
+  import('./card.js'),
+  import('./storage.js'),
+  // @ts-expect-error Don't bother with .d.ts for now
+  import('./deal.js'),
+  wasmReady,
+]).then(async([{
   Deal,
   findDeal,
 }, {
   Storage,
+}, {
+  parse,
 }]) => {
   const db = new Storage();
   await db.init();
@@ -61,9 +62,21 @@ Promise.all([import('./card.js'), import('./storage.js'), wasmReady]).then(async
     const code = await db.getJS(e.data.name, e.data.stamp);
     if (code) {
       if (code.code.trim()) {
-        // eslint-disable-next-line @stylistic/max-len
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
-        filter = new Function('deal', 'Deal', KILL + code.code) as DealPredicate;
+        try {
+          const src = parse(code.code, {
+            grammarSource: 'web',
+          });
+          // eslint-disable-next-line @stylistic/max-len
+          // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+          filter = new Function('deal', 'Deal', src) as DealPredicate;
+        } catch (error) {
+          pm({
+            type: 'error',
+            error,
+            location: (error as any).location,
+          });
+          return;
+        }
       } else {
         filter = noOp;
       }
