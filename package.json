@@ -4,13 +4,14 @@
   "decription": "",
   "main": "index.js",
   "type": "module",
+  "private": "true",
   "scripts": {
     "build": "peggy src/deal.peggy --format es && tsc",
     "postbuild": "copyfiles -u -a -f src/deal.js docs/js",
     "cert": "openssl req -x509 -out localhost.crt -keyout localhost.key -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost'",
     "lint": "eslint .",
     "start": "five-server",
-    "test": "c8 npm --test"
+    "test": "c8 node --test"
   },
   "keywords": [
     "bridge",

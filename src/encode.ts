@@ -1,23 +1,25 @@
-async function bytesToBase64url(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+const b64ToUrl: {[key: string]: string} = {
+  '+': '-',
+  '/': '_',
+  '=': '',
+};
 
-    reader.onload = (event: ProgressEvent<FileReader>): void => {
-      const dataUrl = reader.result;
-      if (typeof dataUrl === 'string') {
-        const [_, base64] = dataUrl.split(',');
-        resolve(base64.replace(/[+/]/g, (s: string): string => ({
-          '+': '-',
-          '/': '_',
-          '=': '',
-        }[s] ?? s)));
-      } else {
-        reject(new Error('Invalid FileReader onload event'));
-      }
-    };
+const urlToB64: {[key: string]: string} = {
+  '-': '+',
+  '_': '/',
+};
 
-    reader.readAsDataURL(blob);
-  });
+export function bytesToBase64url(buf: ArrayBuffer): string {
+  const u8 = new Uint8Array(buf);
+  // https://developer.mozilla.org/en-US/docs/Glossary/Base64
+  const binString = Array.from(
+    u8,
+    (byte: number): string => String.fromCodePoint(byte)
+  ).join('');
+  return btoa(binString).replace(
+    /[+/=]/g,
+    (s: string): string => b64ToUrl[s]
+  );
 }
 
 /**
@@ -33,14 +35,17 @@ export async function compressString(txt: string): Promise<string> {
   await w.write(txt);
   await w.close();
   const r = new Response(rd);
-  return bytesToBase64url(await r.blob());
+  return bytesToBase64url(await r.arrayBuffer());
 }
 
 export async function decompressString(compressed: string): Promise<string> {
-  const b64 = compressed.replace(/[_-]/g, (s: string): string => ({
-    '-': '+',
-    '_': '/',
-  }[s] ?? s));
+  let b64 = compressed.replace(
+    /[_-]/g,
+    (s: string): string => (urlToB64[s] ?? s)
+  );
+  while (b64.length % 4) {
+    b64 += '=';
+  }
   const resp = await fetch(`data:text/javascript;base64,${b64}`);
   const dec = resp.body?.pipeThrough(new DecompressionStream('deflate'));
 

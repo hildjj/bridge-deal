@@ -1,5 +1,6 @@
 .c8rc
 .cache/
+.editorconfig
 .fiveserverrc
 .github/
 .ncurc
@@ -9,6 +10,8 @@ coverage/
 ddummy6.cjs
 docs/
 eslint.config.js
+hands/
 pnpm-lock.yaml
 src/
+test/
 tsconfig.json
