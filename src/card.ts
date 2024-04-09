@@ -105,7 +105,7 @@ export class Card extends Inspected {
 }
 
 rnk = 51;
-const Deck = Object
+export const Deck = Object
   .values(Suit)
   .flatMap(
     s => (Object.keys(RankValues) as Rank[])
@@ -261,9 +261,6 @@ export class Hand extends Inspected {
 
   public push(cd: Card): void {
     this.cards.push(cd);
-    if (this.cards.length > 13) {
-      throw new Error('Bad deal');
-    }
   }
 
   public pbn(): string {
@@ -559,11 +556,14 @@ export class Deal extends Inspected {
 export type DealPredicate =
   (deal: Deal, cls: typeof Deal.constructor) => boolean;
 
-export function findDeal(filter?: DealPredicate): [Deal, number] {
+export function findDeal(
+  filter?: DealPredicate,
+  maxTries = MAX_TRIES
+): [Deal, number] {
   let tries = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    if (tries++ > MAX_TRIES) {
+    if (tries++ > maxTries) {
       throw new Error(`Too many tries: ${tries}`);
     }
     const d = new Deal();

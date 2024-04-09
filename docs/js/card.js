@@ -110,7 +110,7 @@ export class Card extends Inspected {
     }
 }
 rnk = 51;
-const Deck = Object
+export const Deck = Object
     .values(Suit)
     .flatMap(s => Object.keys(RankValues)
     .map(r => new Card(r, s, rnk--)));
@@ -261,9 +261,6 @@ let Hand = (() => {
         }
         push(cd) {
             this.cards.push(cd);
-            if (this.cards.length > 13) {
-                throw new Error('Bad deal');
-            }
         }
         pbn() {
             return this.ranks().join('.');
@@ -508,10 +505,10 @@ let Deal = (() => {
     };
 })();
 export { Deal };
-export function findDeal(filter) {
+export function findDeal(filter, maxTries = MAX_TRIES) {
     let tries = 0;
     while (true) {
-        if (tries++ > MAX_TRIES) {
+        if (tries++ > maxTries) {
             throw new Error(`Too many tries: ${tries}`);
         }
         const d = new Deal();
