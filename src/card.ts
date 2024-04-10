@@ -98,6 +98,8 @@ export const Deck = Object
       .map(r => new Card(r, s, rnk--))
   );
 
+// I can't get this to work as an interface.
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type Suits = Record<Suit, Card[]>;
 
 export class Hand extends Inspected {
