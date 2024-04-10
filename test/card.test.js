@@ -21,10 +21,9 @@ test('card', () => {
 
 test('hand', () => {
   const d = new Deal(22920490249857295463399012200n);
-  // Ensure laziness works
   const n = d.north;
   equal(n.dir, 'north');
-  equal(Object.getOwnPropertyDescriptor(n, 'points'), undefined);
+  equal(n.points, 7);
   equal(n.points, 7);
 
   equal(d.toString(), `\
@@ -34,11 +33,6 @@ East: ♣: J2 ♢: T953 ♡: 975 ♠: AJ82 (6)
 South: ♣: KT864 ♢: Q8 ♡: AJ4 ♠: K73 (13)
 West: ♣: A95 ♢: AKJ62 ♡: 62 ♠: QT6 (14)
 `);
-
-  deepEqual(Object.getOwnPropertyDescriptor(n, 'points'), {
-    value: 7, writable: false, enumerable: false, configurable: false,
-  });
-  equal(n.points, 7);
 
   equal(n.clubs.length, 3);
   equal(n.diamonds.length, 2);
@@ -88,6 +82,15 @@ test('Bid', () => {
     suit: '♣',
     alert: true,
     description: '16+, artificial',
+  });
+  deepEqual(new Bid({
+    level: 1,
+    suit: Suit.SPADES,
+  }).toJSON(), {
+    level: 1,
+    suit: Suit.SPADES,
+    alert: false,
+    description: undefined,
   });
   throws(() => new Bid({
     level: 8,

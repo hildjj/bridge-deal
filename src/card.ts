@@ -56,20 +56,6 @@ export type SuitStr = keyof Shape;
 
 export type ShapeAny = [number, number, number, number];
 
-function lazy<T>(
-  fn: (...args: any[]) => any,
-  desc: ClassGetterDecoratorContext
-) {
-  // eslint-disable-next-line func-names
-  return function(this: T, ...args: any[]): any {
-    const value = fn.call(this, ...args);
-    Object.defineProperty(this, desc.name, {
-      value,
-    });
-    return value;
-  };
-}
-
 export class Inspected {
   public [Symbol.for('Deno.customInspect')](): string {
     return this.toString();
@@ -112,10 +98,14 @@ export const Deck = Object
       .map(r => new Card(r, s, rnk--))
   );
 
+export type Suits = Record<Suit, Card[]>;
+
 export class Hand extends Inspected {
   public cards: Card[] = [];
   public name: string;
   public dir: Direction;
+  #points: number | undefined = undefined;
+  #suits: Suits | undefined = undefined;
 
   public constructor(name: string) {
     super();
@@ -123,42 +113,39 @@ export class Hand extends Inspected {
     this.dir = name.toLowerCase() as Direction;
   }
 
-  @lazy
   public get points(): number {
-    return this.cards.reduce((t, v) => t + v.points, 0);
+    if (this.#points === undefined) {
+      this.#points = this.cards.reduce((t, v) => t + v.points, 0);
+    }
+    return this.#points;
   }
 
-  @lazy
   public get spades(): Card[] {
-    return this.cards.filter(cd => cd.suit === Suit.SPADES);
+    return this.#getSuits()[Suit.SPADES];
   }
 
-  @lazy
   public get hearts(): Card[] {
-    return this.cards.filter(cd => cd.suit === Suit.HEARTS);
+    return this.#getSuits()[Suit.HEARTS];
   }
 
-  @lazy
   public get diamonds(): Card[] {
-    return this.cards.filter(cd => cd.suit === Suit.DIAMONDS);
+    return this.#getSuits()[Suit.DIAMONDS];
   }
 
-  @lazy
   public get clubs(): Card[] {
-    return this.cards.filter(cd => cd.suit === Suit.CLUBS);
+    return this.#getSuits()[Suit.CLUBS];
   }
 
-  @lazy
   public get shape(): Shape {
+    const s = this.#getSuits();
     return {
-      spades: this.spades.length,
-      hearts: this.hearts.length,
-      diamonds: this.diamonds.length,
-      clubs: this.clubs.length,
+      spades: s[Suit.SPADES].length,
+      hearts: s[Suit.HEARTS].length,
+      diamonds: s[Suit.DIAMONDS].length,
+      clubs: s[Suit.CLUBS].length,
     };
   }
 
-  @lazy
   public get shapeAny(): ShapeAny {
     return Object
       .values(this.shape)
@@ -279,6 +266,21 @@ export class Hand extends Inspected {
         .map(cd => cd.rank)
         .join('')}`)
       .join(' ')} (${this.points})`;
+  }
+
+  #getSuits(): Suits {
+    if (!this.#suits) {
+      this.#suits = {
+        [Suit.SPADES]: [],
+        [Suit.HEARTS]: [],
+        [Suit.DIAMONDS]: [],
+        [Suit.CLUBS]: [],
+      };
+      for (const c of this.cards) {
+        this.#suits[c.suit].push(c);
+      }
+    }
+    return this.#suits;
   }
 }
 
@@ -445,7 +447,7 @@ export class Deal extends Inspected {
       for (const h of this.hands) {
         I -= X;
         X = K * h.needed / C;
-        if (I < X || h.name === 'W') {
+        if (I < X) {
           h.push(Deck[Number(C) - 1]);
           break;
         }
@@ -455,22 +457,18 @@ export class Deal extends Inspected {
     // No need to sort, cards are inserted in order
   }
 
-  @lazy
   public get north(): Hand {
     return this.hands[0];
   }
 
-  @lazy
   public get east(): Hand {
     return this.hands[1];
   }
 
-  @lazy
   public get south(): Hand {
     return this.hands[2];
   }
 
-  @lazy
   public get west(): Hand {
     return this.hands[3];
   }
