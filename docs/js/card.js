@@ -231,6 +231,11 @@ export class Bid extends Inspected {
     static PASS = 0;
     static DOUBLE = -1;
     static REDOUBLE = -2;
+    static BidFromName = {
+        P: Bid.PASS,
+        X: Bid.DOUBLE,
+        XX: Bid.REDOUBLE,
+    };
     level;
     suit;
     alert;
@@ -247,14 +252,7 @@ export class Bid extends Inspected {
             }
             const level = m.groups.level ?
                 parseInt(m.groups.level, 10) :
-                {
-                    P: Bid.PASS,
-                    X: Bid.DOUBLE,
-                    XX: Bid.REDOUBLE,
-                }[m.groups.bid];
-            if (typeof level === 'undefined') {
-                throw new Error(`Unknown bid: "${opts}"`);
-            }
+                Bid.BidFromName[m.groups.bid];
             opts = {
                 level,
                 alert: Boolean(m.groups.alert),
