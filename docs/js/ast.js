@@ -1,4 +1,18 @@
 import { Direction } from './card.js';
+class Reject {
+    #str;
+    #not;
+    constructor(str, not) {
+        this.#str = str;
+        this.#not = not;
+    }
+    toString() {
+        if (this.#not === 1) {
+            return `if (${this.#str}) { return false; }`;
+        }
+        return `if (!(${this.#str})) { return false; }`;
+    }
+}
 class Holder {
     #reject = [];
     #accept = undefined;
@@ -19,7 +33,7 @@ class Holder {
             return this;
         }
         if (not) {
-            this.#reject.push(rule);
+            this.#reject.push(new Reject(rule, not));
             return this;
         }
         this.#accept = new Accept(rule, this.#vars, this.#depth + 1);
@@ -28,8 +42,8 @@ class Holder {
     toString() {
         let ret = '';
         for (const r of this.#reject) {
-            if (typeof r === 'string') {
-                ret += `${this.indent(1)}if (${r}) { return false; }\n`;
+            if (r instanceof Reject) {
+                ret += `${this.indent(1)}${r.toString()}\n`;
             }
             else {
                 for (const [k, v] of Object.entries(r)) {

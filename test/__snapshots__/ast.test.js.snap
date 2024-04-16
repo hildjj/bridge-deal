@@ -1,0 +1,8 @@
+// Data Snap v1
+
+exports[`DealRules`] = {
+  "data": "let dir = null;\nlet foo = null;\nlet points = null;\ndir = deal.south;\nfoo = '1';\npoints = [4, 3, 2, 1];\nif (dir.balancedNoM()) { return false; }\nif (!(dir.points === 17)) {\n  return false;\n}\ndeal.dealer = 'south';\ndeal.vuln = 'All'\ndeal.bid(`P: ${foo}`);\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}

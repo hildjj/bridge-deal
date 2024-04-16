@@ -16,10 +16,27 @@ export interface VarMap {
   [name: string]: string;
 }
 
+class Reject {
+  #str: string;
+  #not: number;
+
+  public constructor(str: string, not: number) {
+    this.#str = str;
+    this.#not = not;
+  }
+
+  public toString(): string {
+    if (this.#not === 1) {
+      return `if (${this.#str}) { return false; }`;
+    }
+    return `if (!(${this.#str})) { return false; }`;
+  }
+}
+
 class Holder {
   // 0+ reject
   // 0-1 accept
-  #reject: (VarMap | string)[] = [];
+  #reject: (Reject | VarMap)[] = [];
   #accept: Accept | undefined = undefined;
   #depth: number;
   #vars: Set<string>;
@@ -31,7 +48,7 @@ class Holder {
     this.#top = top;
   }
 
-  public add(rule: VarMap | string, not: boolean): Holder {
+  public add(rule: VarMap | string, not: number): Holder {
     if (typeof rule !== 'string') {
       for (const k of Object.keys(rule)) {
         this.#vars.add(k);
@@ -40,7 +57,7 @@ class Holder {
       return this;
     }
     if (not) {
-      this.#reject.push(rule);
+      this.#reject.push(new Reject(rule, not));
       return this;
     }
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -51,8 +68,8 @@ class Holder {
   public toString(): string {
     let ret = '';
     for (const r of this.#reject) {
-      if (typeof r === 'string') {
-        ret += `${this.indent(1)}if (${r}) { return false; }\n`;
+      if (r instanceof Reject) {
+        ret += `${this.indent(1)}${r.toString()}\n`;
       } else {
         for (const [k, v] of Object.entries(r)) {
           if (Array.isArray(v)) {
@@ -121,7 +138,7 @@ export class DealRules {
     this.#dirs.push(this.#cur);
   }
 
-  public add(rule: string, not: boolean): void {
+  public add(rule: string, not: number): void {
     if (!this.#cur) {
       throw new Error('Set direction first');
     }

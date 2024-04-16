@@ -66,7 +66,6 @@ vulnerability
 bid
  = "bid" __ bid:description {
     rules.bids.push(bid);
-    return null;
   }
 
 suit
@@ -75,9 +74,6 @@ suit
   / "H"i { return 'hearts'; }
   / "S"i { return 'spades'; }
 
-alert
-  = "!"
-
 comment
   = "//" description
 
@@ -85,8 +81,8 @@ description
   = $(!EOL .)+
 
 rule
-  = not:(@"!" _)? parts:part|1.., "," _| {
-    rules.add(parts.join(' && '), Boolean(not));
+  = not:(@"!"|0..2| _)? parts:part|1.., "," _| {
+    rules.add(parts.join(' && '), not?.length ?? 0);
   }
 
 // Return the "not" versions
@@ -175,21 +171,21 @@ card
   = [2-9TJQKA]
 
 __
-  = $WS+
+  = WS+ {}
 
 _
-  = $WS*
+  = WS* {}
 
 WS
-  = [ \t]
+  = [ \t] {}
 
 CRLF
-  = "\r\n"
-  / "\n"
+  = "\r\n" {}
+  / "\n" {}
 
 EOL
-  = CRLF
-  / !.
+  = CRLF {}
+  / !. {}
 
 identifier
   = $(XID_Start XID_Continue*)
