@@ -5,3 +5,4 @@ ddummy6.cjs
 docs/js/dds.cjs
 lib/
 node_modules/
+hands/*.js

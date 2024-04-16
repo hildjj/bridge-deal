@@ -6,13 +6,14 @@ north
 bid P
 
 south
+  !! 4-7
   $suit = C
-  4-7, 7+C
+  7+C
   $suit = D
-  4-7, 7+D
+  7+D
   $suit = H
-  4-7, 7+H
+  7+H
   $suit = S
-  4-7, 7+S
+  7+S
   bid 3${suit}!: weak
 
