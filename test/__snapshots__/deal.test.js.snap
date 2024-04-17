@@ -85,7 +85,7 @@ exports[`east`] = {
 }
 
 exports[`format error`] = {
-  "data": "Error: Expected \"!\", \"$\", \"%\", \"\u002F\u002F\", \"\u003C\", \"C\", \"D\", \"H\", \"S\", \"\\n\", \"\\r\\n\", \"any\", \"balanced\", \"balanced5\", \"bid\", \"dealer\", \"e\", \"east\", \"n\", \"north\", \"s\", \"south\", \"vuln\", \"w\", \"west\", [ \\t], or [0-9] but \"f\" found.\n --\u003E testing:1:1\n  |\n1 | foo\n  | ^",
+  "data": "Error: Expected \"!\", \"$\", \"%\", \"\u002F\u002F\", \"\u003C\", \"C\", \"D\", \"H\", \"S\", \"\\n\", \"\\r\\n\", \"any\", \"balanced\", \"balanced5\", \"bid\", \"dealer\", \"east\", \"north\", \"south\", \"vuln\", \"west\", [ \\t], or [0-9] but \"f\" found.\n --\u003E testing:1:1\n  |\n1 | foo\n  | ^",
   "meta": {
     "expires": null
   }
@@ -228,8 +228,40 @@ exports[`north
 }
 
 exports[`north
+  <5b`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.clubs.length \u003C 5) && (dir.spades.length \u003C 5))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  <5r`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.diamonds.length \u003C 5) && (dir.hearts.length \u003C 5))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  <6R`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.clubs.length \u003C 6) && (dir.hearts.length \u003C 6))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   <6r`] = {
   "data": "let dir = null;\ndir = deal.north;\nif (!((dir.clubs.length \u003C 6) && (dir.hearts.length \u003C 6))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  <=6P`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.diamonds.length \u003C= 6) && (dir.spades.length \u003C= 6))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
     "expires": null
   }
