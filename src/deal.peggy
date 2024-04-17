@@ -16,16 +16,15 @@ const rules = new DealRules();
 }
 
 commands
-  = commands:command|.., _ comment? CRLF| EOL { return rules.toString(); }
+  = (_ command?)|.., _ comment? CRLF| EOL { return rules.toString(); }
 
 command
   = dealer
   / vuln
   / hand
-  / _ @setVar
-  / _ @bid
-  / _ @rule
-  / _
+  / setVar
+  / bid
+  / rule
 
 dealer
   = "dealer" __ d:dir { rules.dealer = d; }
@@ -46,10 +45,6 @@ dir
   / "south"i { return Direction.SOUTH; }
   / "east"i { return Direction.EAST; }
   / "west"i { return Direction.WEST; }
-  / "n"i &(__ / EOL) { return Direction.NORTH; }
-  / "s"i &(__ / EOL) { return Direction.SOUTH; }
-  / "e"i &(__ / EOL) { return Direction.EAST; }
-  / "w"i &(__ / EOL) { return Direction.WEST; }
 
 vuln
   = "vuln" __ vuln:vulnerability { rules.vuln = vuln; }
@@ -66,7 +61,6 @@ vulnerability
 bid
  = "bid" __ bid:description {
     rules.bids.push(bid);
-    return null;
   }
 
 suit
@@ -75,18 +69,15 @@ suit
   / "H"i { return 'hearts'; }
   / "S"i { return 'spades'; }
 
-alert
-  = "!"
-
 comment
-  = "//" description
+  = "//" $(!EOL .)+
 
 description
-  = $(!EOL .)+
+  = desc:$(!EOL !"//" .)+ { return desc.trim(); }
 
 rule
-  = not:(@"!" _)? parts:part|1.., "," _| {
-    rules.add(parts.join(' && '), Boolean(not));
+  = not:(@"!"|0..2| _)? parts:part|1.., "," _| {
+    rules.add(parts.join(' && '), not?.length ?? 0);
   }
 
 // Return the "not" versions
@@ -150,8 +141,10 @@ suitSet
   = "X"i { return ['clubs', 'diamonds', 'hearts', 'spades'] }
   / "M"  { return ['hearts', 'spades'] }
   / "m"  { return ['clubs', 'diamonds'] }
-  / "P"i { return ['diamonds', 'spades'] }
-  / "R"i { return ['clubs', 'hearts'] }
+  / "P" { return ['diamonds', 'spades'] }
+  / "R" { return ['clubs', 'hearts'] }
+  / "r" { return ['diamonds', 'hearts'] }
+  / "b" { return ['clubs', 'spades'] }
 
 distribution
   = any:"any"? _ dist:[0-9]|4| {
@@ -175,21 +168,21 @@ card
   = [2-9TJQKA]
 
 __
-  = $WS+
+  = WS+ {}
 
 _
-  = $WS*
+  = WS* {}
 
 WS
-  = [ \t]
+  = [ \t] {}
 
 CRLF
-  = "\r\n"
-  / "\n"
+  = "\r\n" {}
+  / "\n" {}
 
 EOL
-  = CRLF
-  / !.
+  = CRLF {}
+  / !. {}
 
 identifier
   = $(XID_Start XID_Continue*)

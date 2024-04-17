@@ -6,8 +6,9 @@ north
 bid P
 
 south
+  !! 8+
   $suit = H
-  8+, 5+H, S<=H
+  5+H, S<=H
   $suit = S
-  8+, 5+S
+  5+S
   bid 1${suit}: 8+, 5+${suit}

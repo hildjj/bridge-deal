@@ -6,10 +6,12 @@ north
 bid P
 
 south
+  !! 4-7
+
   $suit = H
-  4-7, 6H
+  6H
 
   $suit = S
-  4-7, 6S
+  6S
 
   bid 2${suit}: 4-7, 6${suit}

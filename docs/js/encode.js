@@ -1,22 +1,16 @@
-async function bytesToBase64url(blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const dataUrl = reader.result;
-            if (typeof dataUrl === 'string') {
-                const [_, base64] = dataUrl.split(',');
-                resolve(base64.replace(/[+/]/g, (s) => ({
-                    '+': '-',
-                    '/': '_',
-                    '=': '',
-                }[s] ?? s)));
-            }
-            else {
-                reject(new Error('Invalid FileReader onload event'));
-            }
-        };
-        reader.readAsDataURL(blob);
-    });
+const b64ToUrl = {
+    '+': '-',
+    '/': '_',
+    '=': '',
+};
+const urlToB64 = {
+    '-': '+',
+    '_': '/',
+};
+export function bytesToBase64url(buf) {
+    const u8 = new Uint8Array(buf);
+    const binString = Array.from(u8, (byte) => String.fromCodePoint(byte)).join('');
+    return btoa(binString).replace(/[+/=]/g, (s) => b64ToUrl[s]);
 }
 export async function compressString(txt) {
     const te = new TextEncoderStream();
@@ -25,13 +19,13 @@ export async function compressString(txt) {
     await w.write(txt);
     await w.close();
     const r = new Response(rd);
-    return bytesToBase64url(await r.blob());
+    return bytesToBase64url(await r.arrayBuffer());
 }
 export async function decompressString(compressed) {
-    const b64 = compressed.replace(/[_-]/g, (s) => ({
-        '-': '+',
-        '_': '/',
-    }[s] ?? s));
+    let b64 = compressed.replace(/[_-]/g, (s) => (urlToB64[s] ?? s));
+    while (b64.length % 4) {
+        b64 += '=';
+    }
     const resp = await fetch(`data:text/javascript;base64,${b64}`);
     const dec = resp.body?.pipeThrough(new DecompressionStream('deflate'));
     const res = new Response(dec);
