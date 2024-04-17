@@ -151,8 +151,7 @@ South
   8+, any 4441 // OR the impossible negative
 ```
 
---
+---
 
 [![Tests](https://github.com/hildjj/bridge-deal/actions/workflows/node.js.yml/badge.svg)](https://github.com/hildjj/bridge-deal/actions/workflows/node.js.yml)
-
 [![codecov](https://codecov.io/gh/hildjj/bridge-deal/graph/badge.svg?token=S46Z5O801A)](https://codecov.io/gh/hildjj/bridge-deal)
