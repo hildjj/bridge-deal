@@ -16,7 +16,7 @@ const rules = new DealRules();
 }
 
 commands
-  = (_ command?)|.., _ comment? CRLF| EOL { return rules.toString(); }
+  = (_ command? (_ comment)?)|.., CRLF| CRLF? { return rules.toString(); }
 
 command
   = dealer
@@ -25,6 +25,7 @@ command
   / setVar
   / bid
   / rule
+  / comment
 
 dealer
   = "dealer" __ d:dir { rules.dealer = d; }
@@ -70,10 +71,16 @@ suit
   / "S"i { return 'spades'; }
 
 comment
-  = "//" $(!EOL .)+
+  = "//" $commentChar*
+
+commentChar
+  = !EOL .
 
 description
-  = desc:$(!EOL !"//" .)+ { return desc.trim(); }
+  = desc:$normalChar+ { return desc.trim(); }
+
+normalChar
+  = !EOL !"//" .
 
 rule
   = not:(@"!"|0..2| _)? parts:part|1.., "," _| {
@@ -86,6 +93,8 @@ part
   / weight
   / compare
   / distribution
+  / singleton
+  / void
   / min:hcp "-" max:hcp { return `dir.range(${min}, ${max})`; }
   / p:hcp more:"+"? {
       if (more) {
@@ -125,17 +134,26 @@ op
   / "=" { return "==="; }
 
 holding
+  = holdingPlus
+  / holdingLess
+  / holdingRange
+
+holdingPlus
   = num:[0-9] plus:"+"? suits:(suitSet / suit+) {
       const op = plus ? ">=" : "==="
       return '(' + suitOps(op, num, suits).join(' || ') + ')';
     }
-  / op:$("<" "="?) _ num:[0-9] suits:(suitSet / suit+) {
+
+holdingLess
+  = op:$("<" "="?) _ num:[0-9] suits:(suitSet / suit+) {
       return suitOps(op, num, suits).join(' && ');
     }
-  / a:[0-9] "-" b:[0-9] suits:(suitSet / suit+) {
-    return suitOps(">=", a, suits).join(' && ') + ' && ' +
-      suitOps("<=", b, suits).join(' && ');
-  }
+
+holdingRange
+  = a:[0-9] "-" b:[0-9] suits:(suitSet / suit+) {
+      return suitOps(">=", a, suits).join(' && ') + ' && ' +
+        suitOps("<=", b, suits).join(' && ');
+    }
 
 suitSet
   = "X"i { return ['clubs', 'diamonds', 'hearts', 'spades'] }
@@ -152,6 +170,16 @@ distribution
       return `dir.isShapeAny(${dist.join(', ')})`
     }
     return `dir.isShape(${dist.join(', ')})`
+  }
+
+singleton
+  = "singleton" {
+    return `dir.hasSingleton()`;
+  }
+
+void
+  = "void" {
+    return `dir.hasVoid()`;
   }
 
 cards
