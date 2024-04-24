@@ -1,7 +1,187 @@
 // Data Snap v1
 
+exports[``] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`// `] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`// foo`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`// foo
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//a`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//a
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//ab`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//ab
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abc`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abc
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcd`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcd
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcde`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcde
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcdef`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcdef
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcdefg`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`//abcdefg
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
 exports[`bid 1C!: 16+, artificial`] = {
   "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\ndeal.bid(`1C!: 16+, artificial`);\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`bid 1C!://
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\ndeal.bid(`1C!:`);\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`bid 1C!:// `] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\ndeal.bid(`1C!:`);\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`bid 1C!:// 
+`] = {
+  "data": "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\ndeal.bid(`1C!:`);\nreturn true;\n",
   "meta": {
     "expires": null
   }
@@ -85,7 +265,7 @@ exports[`east`] = {
 }
 
 exports[`format error`] = {
-  "data": "Error: Expected \"!\", \"$\", \"%\", \"\u002F\u002F\", \"\u003C\", \"C\", \"D\", \"H\", \"S\", \"\\n\", \"\\r\\n\", \"any\", \"balanced\", \"balanced5\", \"bid\", \"dealer\", \"east\", \"north\", \"south\", \"vuln\", \"west\", [ \\t], or [0-9] but \"f\" found.\n --\u003E testing:1:1\n  |\n1 | foo\n  | ^",
+  "data": "Error: Expected \"!\", \"$\", \"%\", \"\u002F\u002F\", \"\u003C\", \"C\", \"D\", \"H\", \"S\", \"\\n\", \"\\r\\n\", \"any\", \"balanced\", \"balanced5\", \"bid\", \"dealer\", \"east\", \"north\", \"singleton\", \"south\", \"void\", \"vuln\", \"west\", [ \\t], [0-9], or end of input but \"f\" found.\n --\u003E testing:1:1\n  |\n1 | foo\n  | ^",
   "meta": {
     "expires": null
   }
@@ -131,6 +311,24 @@ exports[`north
 }
 
 exports[`north
+  !22-23, balanced5 //
+`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (dir.range(22, 23) && dir.balanced()) { return false; }\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  !22-23, balanced5 // precision
+`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (dir.range(22, 23) && dir.balanced()) { return false; }\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   $𞋄 = H`] = {
   "data": "let dir = null;\nlet 𞋄 = null;\ndir = deal.north;\n𞋄 = 'H';\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
@@ -142,6 +340,33 @@ exports[`north
   %POINTS = 4, 3, 2, 1
   S%POINTS > 3`] = {
   "data": "let dir = null;\nlet POINTS = null;\ndir = deal.north;\nPOINTS = [4, 3, 2, 1];\nif (!((Deal.weight(dir.spades, POINTS) \u003E 3))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  %POINTS = 40, 3, 2, 1
+  S%POINTS > 3`] = {
+  "data": "let dir = null;\nlet POINTS = null;\ndir = deal.north;\nPOINTS = [40, 3, 2, 1];\nif (!((Deal.weight(dir.spades, POINTS) \u003E 3))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  %POINTS = 40, 30, 2, 1
+  S%POINTS > 3`] = {
+  "data": "let dir = null;\nlet POINTS = null;\ndir = deal.north;\nPOINTS = [40, 30, 2, 1];\nif (!((Deal.weight(dir.spades, POINTS) \u003E 3))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  %POINTS = 40, 30, 2, 1
+  S%POINTS > 30`] = {
+  "data": "let dir = null;\nlet POINTS = null;\ndir = deal.north;\nPOINTS = [40, 30, 2, 1];\nif (!((Deal.weight(dir.spades, POINTS) \u003E 30))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
     "expires": null
   }
@@ -228,6 +453,14 @@ exports[`north
 }
 
 exports[`north
+  8`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.points === 8))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   <5b`] = {
   "data": "let dir = null;\ndir = deal.north;\nif (!((dir.clubs.length \u003C 5) && (dir.spades.length \u003C 5))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
@@ -284,6 +517,22 @@ exports[`north
 }
 
 exports[`north
+  S < H`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.spades.length \u003C dir.hearts.length))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  S <= H`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.spades.length \u003C= dir.hearts.length))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   S = H`] = {
   "data": "let dir = null;\ndir = deal.north;\nif (!((dir.spades.length === dir.hearts.length))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
@@ -300,6 +549,14 @@ exports[`north
 }
 
 exports[`north
+  S >= H`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.spades.length \u003E= dir.hearts.length))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   any 4441`] = {
   "data": "let dir = null;\ndir = deal.north;\nif (!(dir.isShapeAny(4, 4, 4, 1))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
@@ -308,8 +565,40 @@ exports[`north
 }
 
 exports[`north
+  singleton`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!(dir.hasSingleton())) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+  void`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!(dir.hasVoid())) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
 $suit = S`] = {
   "data": "let dir = null;\nlet suit = null;\ndir = deal.north;\nsuit = 'S';\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+south`] = {
+  "data": "let dir = null;\ndir = deal.north;\ndir = deal.south;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
+south // foo`] = {
+  "data": "let dir = null;\ndir = deal.north;\ndir = deal.south;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
     "expires": null
   }

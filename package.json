@@ -34,9 +34,9 @@
   "bugs": {
     "url": "https://github.com/hildjj/bridge-deal/issues"
   },
-  "packageManager": "pnpm@9.0.1",
   "devDependencies": {
     "@cto.af/eslint-config": "4.0.2",
+    "@peggyjs/coverage": "1.0.0",
     "c8": "9.1.0",
     "copyfiles": "2.4.1",
     "eslint": "8.57.0",
@@ -46,6 +46,7 @@
     "typescript": "5.4.2",
     "typescript-eslint": "7.7.0"
   },
+  "packageManager": "pnpm@9.0.6",
   "engines": {
     "node": ">=18"
   }
