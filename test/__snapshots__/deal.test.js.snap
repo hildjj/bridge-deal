@@ -397,6 +397,14 @@ exports[`north
 }
 
 exports[`north
+  37`] = {
+  "data": "let dir = null;\ndir = deal.north;\nif (!((dir.points === 37))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+  "meta": {
+    "expires": null
+  }
+}
+
+exports[`north
   4+M`] = {
   "data": "let dir = null;\ndir = deal.north;\nif (!(((dir.hearts.length \u003E= 4) || (dir.spades.length \u003E= 4)))) {\n  return false;\n}\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
   "meta": {
