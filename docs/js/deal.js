@@ -629,9 +629,6 @@ function peg$parse(input, options) {
             s0 = peg$parsebid();
             if (s0 === peg$FAILED) {
               s0 = peg$parserule();
-              if (s0 === peg$FAILED) {
-                s0 = peg$parsecomment();
-              }
             }
           }
         }

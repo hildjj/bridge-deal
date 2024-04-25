@@ -25,7 +25,6 @@ command
   / setVar
   / bid
   / rule
-  / comment
 
 dealer
   = "dealer" __ d:dir { rules.dealer = d; }
