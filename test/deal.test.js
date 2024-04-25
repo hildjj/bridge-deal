@@ -64,6 +64,7 @@ test('parse', async() => {
     'north\n  13-15',
     'north\n  13+',
     'north\n  13',
+    'north\n  37',
     'north\n  4CD',
     'north\n  4HS',
     'north\n  4+M',
@@ -129,6 +130,7 @@ test('parse errors', () => {
   }
   for (const src of [
     'foo',
+    'nor',
     'north\n  C%foo = 2',
     'north\n  8,',
     'north\n  8a',
@@ -183,8 +185,17 @@ test('parse errors', () => {
     'bid',
     'bid ',
     'bid\n',
+    '\n I',
   ]) {
-    throws(() => parse(src), `"${src}"`);
+    throws(() => parse(src, {
+      grammarSource: 'test',
+    }), er => {
+      if (er.format) {
+        assert(er.format([{source: 'test', text: src}]));
+        return true;
+      }
+      return false;
+    }, `"${src}"`);
   }
 
   throws(() => parse('', {startRule: 'ref'}));

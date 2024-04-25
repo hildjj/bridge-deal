@@ -74,13 +74,13 @@ comment
   = "//" $commentChar*
 
 commentChar
-  = !EOL .
+  = !CRLF .
 
 description
   = desc:$normalChar+ { return desc.trim(); }
 
 normalChar
-  = !EOL !"//" .
+  = !CRLF !"//" .
 
 rule
   = not:(@"!"|0..2| _)? parts:part|1.., "," _| {
@@ -108,7 +108,7 @@ part
   / cards
 
 hcp
-  = @n:$([0-9] [0-9]?) &{ return parseInt(n, 10) < 37; }
+  = @n:$([0-9] [0-9]?) &{ return parseInt(n, 10) <= 37; }
 
 weight
   = suit:suit "%" id:ref _ op:op _ num:$[0-9]+ {
@@ -207,10 +207,6 @@ WS
 CRLF
   = "\r\n" {}
   / "\n" {}
-
-EOL
-  = CRLF {}
-  / !. {}
 
 identifier
   = $(XID_Start XID_Continue*)
