@@ -24,6 +24,7 @@ const diagFilter = document.getElementById('diagFilter');
 const diagMessage = document.getElementById('diagMessage');
 const error = document.getElementById('error');
 const files = document.getElementById('files');
+const filterSource = document.getElementById('filterSource');
 const nxt = document.getElementById('btnNext');
 const parResults = document.getElementById('parResults');
 const parScore = document.getElementById('parScore');
@@ -35,8 +36,8 @@ const holdings = document.querySelectorAll('.holding');
 const points = document.querySelectorAll('.points');
 const out = document.querySelectorAll('.out');
 if (!add || !bidding || !copy || !copyFilter || !del || !diag || !diagFilter ||
-    !diagMessage || !error || !files || !nxt || !parResults || !parScore ||
-    !prev || !rename || !share || !tries) {
+    !diagMessage || !error || !files || !filterSource || !nxt || !parResults ||
+    !parScore || !prev || !rename || !share || !tries) {
     throw new Error('Element not found');
 }
 function clear() {
@@ -61,6 +62,7 @@ function clear() {
     parResults.innerText = '';
     parScore.innerText = '';
     monaco.editor.removeAllMarkers('web');
+    filterSource.innerHTML = '';
 }
 function snap() {
     const shot = model.createSnapshot();
@@ -90,8 +92,11 @@ function fileSelect(text) {
         i++;
     }
 }
-async function nextDeal(num) {
+async function nextDeal(num, debug = false) {
     state.num = num ?? -1n;
+    if (debug) {
+        state.stamp = Date.now();
+    }
     clear();
     if (codeLastStored !== state.stamp) {
         codeLastStored = state.stamp;
@@ -102,7 +107,10 @@ async function nextDeal(num) {
         });
     }
     db.putState(state);
-    work?.postMessage(state);
+    work?.postMessage({
+        ...state,
+        debug,
+    });
 }
 function plusMinus(str) {
     if (str.length < 3) {
@@ -280,6 +288,10 @@ async function gotMessage(e) {
         }
         return;
     }
+    if (typ === 'source') {
+        filterSource.innerText = e.data.src;
+        return;
+    }
     error.innerText = `Invalid message type: "${typ}"`;
 }
 db.init().then(async () => {
@@ -411,7 +423,7 @@ del.onclick = async () => {
     }
 };
 add.onclick = newFilter;
-window.onkeydown = (ev) => {
+window.onkeydown = async (ev) => {
     if (ev.isComposing || ev.keyCode === 229) {
         return true;
     }
@@ -422,6 +434,9 @@ window.onkeydown = (ev) => {
                 break;
             case 'p':
                 prev.click();
+                break;
+            case 's':
+                await nextDeal(undefined, true);
                 break;
             default:
                 return true;

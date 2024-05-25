@@ -26,6 +26,7 @@ const diagFilter = document.getElementById('diagFilter') as HTMLInputElement;
 const diagMessage = document.getElementById('diagMessage') as HTMLDivElement;
 const error = document.getElementById('error') as HTMLSpanElement;
 const files = document.getElementById('files') as HTMLSelectElement;
+const filterSource = document.getElementById('filterSource') as HTMLSpanElement;
 const nxt = document.getElementById('btnNext') as HTMLButtonElement;
 const parResults = document.getElementById('parResults') as HTMLSpanElement;
 const parScore = document.getElementById('parScore') as HTMLSpanElement;
@@ -39,8 +40,8 @@ const out = document.querySelectorAll<HTMLSpanElement>('.out');
 
 if (
   !add || !bidding || !copy || !copyFilter || !del || !diag || !diagFilter ||
-  !diagMessage || !error || !files || !nxt || !parResults || !parScore ||
-  !prev || !rename || !share || !tries
+  !diagMessage || !error || !files || !filterSource || !nxt || !parResults ||
+  !parScore || !prev || !rename || !share || !tries
 ) {
   throw new Error('Element not found');
 }
@@ -68,6 +69,7 @@ function clear(): void {
   parResults.innerText = '';
   parScore.innerText = '';
   monaco.editor.removeAllMarkers('web');
+  filterSource.innerHTML = '';
 }
 
 function snap(): string {
@@ -101,8 +103,11 @@ function fileSelect(text: string): void {
   }
 }
 
-async function nextDeal(num?: bigint): Promise<void> {
+async function nextDeal(num?: bigint, debug = false): Promise<void> {
   state.num = num ?? -1n;
+  if (debug) {
+    state.stamp = Date.now();
+  }
 
   clear();
   if (codeLastStored !== state.stamp) {
@@ -114,7 +119,10 @@ async function nextDeal(num?: bigint): Promise<void> {
     });
   }
   db.putState(state);
-  work?.postMessage(state);
+  work?.postMessage({
+    ...state,
+    debug,
+  });
 }
 
 function plusMinus(str: string): string {
@@ -312,6 +320,11 @@ async function gotMessage(e: MessageEvent): Promise<void> {
     return;
   }
 
+  if (typ === 'source') {
+    filterSource.innerText = e.data.src;
+    return;
+  }
+
   error.innerText = `Invalid message type: "${typ}"`;
 }
 
@@ -464,7 +477,7 @@ del.onclick = async(): Promise<void> => {
 
 add.onclick = newFilter;
 
-window.onkeydown = (ev: KeyboardEvent): boolean => {
+window.onkeydown = async(ev: KeyboardEvent): Promise<boolean> => {
   // See:
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event
   if (ev.isComposing || ev.keyCode === 229) {
@@ -477,6 +490,9 @@ window.onkeydown = (ev: KeyboardEvent): boolean => {
         break;
       case 'p':
         prev.click();
+        break;
+      case 's':
+        await nextDeal(undefined, true);
         break;
       default:
         return true;
