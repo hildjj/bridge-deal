@@ -66,6 +66,12 @@ Promise.all([
           const src = parse(code.code, {
             grammarSource: 'web',
           });
+          if (e.data.debug) {
+            pm({
+              type: 'source',
+              src,
+            });
+          }
           // eslint-disable-next-line @stylistic/max-len
           // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
           filter = new Function('deal', 'Deal', src) as DealPredicate;

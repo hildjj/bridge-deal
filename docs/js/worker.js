@@ -42,6 +42,12 @@ Promise.all([
                     const src = parse(code.code, {
                         grammarSource: 'web',
                     });
+                    if (e.data.debug) {
+                        pm({
+                            type: 'source',
+                            src,
+                        });
+                    }
                     filter = new Function('deal', 'Deal', src);
                 }
                 catch (error) {

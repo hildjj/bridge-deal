@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [21.x]
+        node-version: [22.x]
         platform: [ubuntu-latest]
 
     runs-on: ${{ matrix.platform }}
@@ -35,7 +35,7 @@ jobs:
       - name: Test ${{ matrix.node-version }} ${{ matrix.platform }}
         run: npm run test
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: hildjj/bridge-deal
