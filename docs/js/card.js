@@ -293,7 +293,10 @@ export class Bid extends Inspected {
                 [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
                 [BidSuit.HEARTS]: BidSuit.HEARTS,
                 [BidSuit.SPADES]: BidSuit.SPADES,
-            }[opts.suit];
+            }[opts.suit.toUpperCase()];
+            if (!this.suit) {
+                throw new Error(`Invalid suit lookup: "${opts.suit.toUpperCase()}"`);
+            }
         }
         else {
             this.suit = opts.suit;
