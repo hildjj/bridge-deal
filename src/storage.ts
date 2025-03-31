@@ -134,7 +134,7 @@ export class Storage {
     });
   }
 
-  private put<T>(store: string, obj: T, key?: IDBValidKey): Promise<void> {
+  private put(store: string, obj: unknown, key?: IDBValidKey): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.#db) {
         reject(new Error('Uninitialized'));

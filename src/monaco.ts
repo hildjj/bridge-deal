@@ -12,7 +12,7 @@ export function initMonaco(
   elemId: string,
   onChange: () => void
 ): Promise<[editor: any, model: any, monaco: any]> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     require.config({
       paths: {
         vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs',
@@ -41,13 +41,11 @@ export function initMonaco(
               '@default': '',
             }}],
             // Numbers
-            [/\d*\.\d+(?:[eE][+-]?\d+)?/, 'number.float'],
-            [/0[xX][0-9a-fA-F]+/, 'number.hex'],
             [/\d+/, 'number'],
           ],
           whitespace: [
             [/[ \t\r\n]+/, ''],
-            [/\/\/.*$/, 'comment'],
+            [/\/\/.*$/m, 'comment'],
           ],
         },
         symbols: /[=><!~?:&|+\-*/^%]+/,

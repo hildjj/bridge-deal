@@ -6,8 +6,7 @@ var Module: any = null;
 
 const pm = postMessage;
 
-const wasmReady = new Promise<void>((resolve, reject) => {
-  // eslint-disable-next-line no-var
+const wasmReady = new Promise<void>((resolve, _reject) => {
   Module = {
     onAbort(...args: any): void {
       // eslint-disable-next-line no-console

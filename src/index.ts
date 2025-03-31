@@ -137,7 +137,7 @@ function plusMinus(str: string): string {
 
 function parContract(str: string): string {
   return str
-    .replace(/[0-9]+[CDHSN]/g, n => plusMinus(n))
+    .replace(/[0-9][CDHSN]/g, n => plusMinus(n))
     .replace(/^(?:NS|EW):/, '');
 }
 
@@ -377,7 +377,8 @@ prev.onclick = (): void => {
 };
 
 copy.onclick = (): void => {
-  navigator.clipboard.writeText(window.location.href);
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
+  navigator?.clipboard.writeText(window.location.href);
 };
 
 nxt.onclick = (): void => {
@@ -425,7 +426,8 @@ share.onclick = async(): Promise<void> => {
   u.searchParams.append('name', state.name);
   u.searchParams.append('stamp', String(state.stamp));
   u.searchParams.append('code', await compressString(snap()));
-  await navigator.clipboard.writeText(u.href);
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
+  await navigator?.clipboard.writeText(u.href);
 };
 
 async function newFilter(): Promise<void> {
@@ -480,6 +482,7 @@ add.onclick = newFilter;
 window.onkeydown = async(ev: KeyboardEvent): Promise<boolean> => {
   // See:
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   if (ev.isComposing || ev.keyCode === 229) {
     return true;
   }
@@ -502,7 +505,7 @@ window.onkeydown = async(ev: KeyboardEvent): Promise<boolean> => {
   return true;
 };
 
-files.onchange = async(ev): Promise<void> => {
+files.onchange = async(_ev): Promise<void> => {
   // Save existing.
   await db.putJS({
     name: state.name,

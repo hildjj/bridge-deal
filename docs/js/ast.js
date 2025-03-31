@@ -1,4 +1,4 @@
-import { Direction } from './card.js';
+import { Bid, Direction } from './card.js';
 class Reject {
     #str;
     #not;
@@ -51,7 +51,7 @@ class Holder {
                         ret += `${this.indent(1)}${k} = [${v.join(', ')}];\n`;
                     }
                     else {
-                        ret += `${this.indent(1)}${k} = '${v}';\n`;
+                        ret += `${this.indent(1)}${k} = \`${v}\`;\n`;
                     }
                 }
             }
@@ -113,12 +113,6 @@ export class DealRules {
     }
     toString() {
         let ret = '';
-        for (const v of this.#vars) {
-            ret += `let ${v} = null;\n`;
-        }
-        for (const d of this.#dirs) {
-            ret += d.toString();
-        }
         ret += `deal.dealer = '${this.dealer}';\n`;
         if (this.vuln) {
             ret += `deal.vuln = '${this.vuln}'\n`;
@@ -126,15 +120,14 @@ export class DealRules {
         else {
             ret += 'deal.randVuln();\n';
         }
+        for (const v of this.#vars) {
+            ret += `let ${v} = null;\n`;
+        }
+        for (const d of this.#dirs) {
+            ret += d.toString();
+        }
         for (const b of this.bids) {
-            for (const m of b.matchAll(/\${(?<interp>[^}]+)}/g)) {
-                if (!m.groups ||
-                    (m.groups.interp === 'dir') ||
-                    !this.#vars.has(m.groups.interp)) {
-                    throw new Error(`Unknown variable "${m.groups?.interp}"`);
-                }
-            }
-            ret += `deal.bid(\`${b}\`);\n`;
+            ret += `deal.bid(${new Bid(b).serialize()});\n`;
         }
         ret += 'return true;\n';
         return ret;

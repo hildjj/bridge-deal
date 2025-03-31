@@ -1,6 +1,6 @@
 {{
 import {DealRules} from './ast.js'
-import {Direction, Vuln} from './card.js'
+import {Direction, Ref, Vuln} from './card.js'
 
 function suitOps(op, num, suits) {
   let ret = [];
@@ -58,10 +58,52 @@ vulnerability
   / "neither"i { return Vuln.NONE; }
   / "random"i { return undefined; }
 
+handVulnerability
+  = "nv"i
+  / "vul"i
+
 bid
- = "bid" __ bid:description {
-    rules.bids.push(bid);
+ = "bid" __ lev:(pdr / suitBid) alert:"!"? description:(":" _ @description?)? {
+    rules.bids.push({
+      ...lev,
+      alert: Boolean(alert),
+      description
+    });
   }
+
+pdr
+  = "p"i "ass"i? { return {level: 0} }
+  / (("r"i "edouble"i) / "xx"i) { return {level: -2} }
+  / (("d"i "ouble"i?) / "x"i) { return {level: -1} }
+
+suitBid
+  = level:level suit:suitChar {
+    return {level, suit};
+  }
+
+level
+  = n:[1-7] { return parseInt(n, 10) }
+  / idref
+
+idref
+ = "${" _ id:identifier _ "}" {
+    if (!rules.isVar(id)) {
+      error(`Unknown variable "${id}"`);1
+    }
+    return new Ref(id)
+  }
+
+suitChar
+  = "C"i { return '♣' }
+  / "D"i { return '♢' }
+  / "H"i { return '♡' }
+  / "S"i { return '♠' }
+  / "♣"i { return '♣' }
+  / "♢"i { return '♢' }
+  / "♡"i { return '♡' }
+  / "♠"i { return '♠' }
+  / "N"i "T"i? { return 'N' }
+  / idref
 
 suit
   = "C"i { return 'clubs'; }
@@ -76,10 +118,15 @@ commentChar
   = !CRLF .
 
 description
-  = desc:$normalChar+ { return desc.trim(); }
+  = desc:charOrRef+ { return desc.join('').trim(); }
+
+charOrRef
+  = "\\" c:[$\\nt] { return `\\${c}` }
+  / idref
+  / normalChar
 
 normalChar
-  = !CRLF !"//" .
+  = !CRLF !"//" ![$\\] @.
 
 rule
   = not:(@"!"|0..2| _)? parts:part|1.., "," _| {

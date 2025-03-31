@@ -122,7 +122,7 @@ function plusMinus(str) {
 }
 function parContract(str) {
     return str
-        .replace(/[0-9]+[CDHSN]/g, n => plusMinus(n))
+        .replace(/[0-9][CDHSN]/g, n => plusMinus(n))
         .replace(/^(?:NS|EW):/, '');
 }
 let diagResolve = null;
@@ -340,7 +340,7 @@ prev.onclick = () => {
     }
 };
 copy.onclick = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator?.clipboard.writeText(window.location.href);
 };
 nxt.onclick = () => {
     prev.classList.remove('md-inactive');
@@ -378,7 +378,7 @@ share.onclick = async () => {
     u.searchParams.append('name', state.name);
     u.searchParams.append('stamp', String(state.stamp));
     u.searchParams.append('code', await compressString(snap()));
-    await navigator.clipboard.writeText(u.href);
+    await navigator?.clipboard.writeText(u.href);
 };
 async function newFilter() {
     let defName = 'Filter';
@@ -445,7 +445,7 @@ window.onkeydown = async (ev) => {
     }
     return true;
 };
-files.onchange = async (ev) => {
+files.onchange = async (_ev) => {
     await db.putJS({
         name: state.name,
         stamp: state.stamp,

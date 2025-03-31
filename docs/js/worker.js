@@ -1,7 +1,7 @@
 "use strict";
 var Module = null;
 const pm = postMessage;
-const wasmReady = new Promise((resolve, reject) => {
+const wasmReady = new Promise((resolve, _reject) => {
     Module = {
         onAbort(...args) {
             console.error('Abort', ...args);

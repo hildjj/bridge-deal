@@ -1,8 +1,10 @@
 .c8rc
 .cache/
+.cert/
 .editorconfig
 .fiveserverrc
 .github/
+.hostlocal.js
 .ncurc
 .vscode/
 calldds.js
@@ -14,5 +16,5 @@ hands/
 pnpm-lock.yaml
 src/
 test/
-tsconfig.json
 tools/
+tsconfig.json
