@@ -451,6 +451,19 @@ export class Deal extends Inspected {
         const v = Math.floor(Math.random() * 4);
         this.vuln = Object.values(Vuln)[v];
     }
+    isVulnerable(hand) {
+        switch (this.vuln) {
+            case Vuln.ALL:
+                return true;
+            case Vuln.NONE:
+                return false;
+            case Vuln.NS:
+                return (hand.dir === Direction.NORTH) || (hand.dir === Direction.SOUTH);
+            case Vuln.EW:
+                return (hand.dir === Direction.EAST) || (hand.dir === Direction.WEST);
+        }
+        throw new TypeError(`Invalid vulnerability: "${this.vuln}"`);
+    }
     bid(opts) {
         this.bids.push(new Bid(opts));
     }

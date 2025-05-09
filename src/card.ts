@@ -570,6 +570,20 @@ export class Deal extends Inspected {
     this.vuln = Object.values(Vuln)[v];
   }
 
+  public isVulnerable(hand: Hand): boolean {
+    switch (this.vuln) {
+      case Vuln.ALL:
+        return true;
+      case Vuln.NONE:
+        return false;
+      case Vuln.NS:
+        return (hand.dir === Direction.NORTH) || (hand.dir === Direction.SOUTH);
+      case Vuln.EW:
+        return (hand.dir === Direction.EAST) || (hand.dir === Direction.WEST);
+    }
+    throw new TypeError(`Invalid vulnerability: "${this.vuln}"`);
+  }
+
   public bid(opts: BidOptions): void {
     this.bids.push(new Bid(opts));
   }

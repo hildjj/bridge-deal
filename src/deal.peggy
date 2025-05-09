@@ -59,8 +59,8 @@ vulnerability
   / "random"i { return undefined; }
 
 handVulnerability
-  = "nv"i
-  / "vul"i
+  = "nv"i { return '!deal.isVulnerable(dir)' }
+  / "vul"i !"n"i { return 'deal.isVulnerable(dir)' }
 
 bid
  = "bid" __ lev:(pdr / suitBid) alert:"!"? description:(":" _ @description?)? {
@@ -152,6 +152,7 @@ part
   / "balanced5" { return 'dir.balanced()'; }
   / "balanced" { return 'dir.balancedNoM()'; }
   / cards
+  / handVulnerability
 
 hcp
   = @n:$([0-9] [0-9]?) &{ return parseInt(n, 10) <= 37; }
