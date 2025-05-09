@@ -23,7 +23,7 @@ test('peggyCoverage', async() => {
   await testPeggy(new URL('../docs/js/deal.js', import.meta.url), [
     {
       validInput: '',
-      validResult: "let dir = null;\ndeal.dealer = 'north';\ndeal.randVuln();\nreturn true;\n",
+      validResult: "deal.dealer = 'north';\ndeal.randVuln();\nlet dir = null;\nreturn true;\n",
       invalidInput: 'aaa',
     },
     {invalidInput: 'north\naaa'},

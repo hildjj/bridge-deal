@@ -49,6 +49,19 @@ export class Inspected {
         return this.toString();
     }
 }
+export class Ref extends Inspected {
+    ref;
+    constructor(ref) {
+        super();
+        this.ref = ref;
+    }
+    toJSON() {
+        return { ref: this.ref };
+    }
+    toString() {
+        return `\${${this.ref}}`;
+    }
+}
 export class Card extends Inspected {
     static POINTS = { A: 4, K: 3, Q: 2, J: 1 };
     rank;
@@ -232,9 +245,12 @@ export class Bid extends Inspected {
     static DOUBLE = -1;
     static REDOUBLE = -2;
     static BidFromName = {
+        p: Bid.PASS,
         P: Bid.PASS,
         X: Bid.DOUBLE,
+        x: Bid.DOUBLE,
         XX: Bid.REDOUBLE,
+        xx: Bid.REDOUBLE,
     };
     level;
     suit;
@@ -243,47 +259,48 @@ export class Bid extends Inspected {
     constructor(opts) {
         super();
         if (!opts) {
-            opts = 'P';
+            opts = { level: Bid.PASS };
         }
-        if (typeof opts === 'string') {
-            const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN♣♢♡♠]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
-            if (!m?.groups) {
-                throw new Error(`Invalid bid: "${opts}"`);
-            }
-            const level = m.groups.level ?
-                parseInt(m.groups.level, 10) :
-                Bid.BidFromName[m.groups.bid];
-            opts = {
-                level,
-                alert: Boolean(m.groups.alert),
-            };
-            if (m.groups.suit) {
-                opts.suit = {
-                    C: BidSuit.CLUBS,
-                    D: BidSuit.DIAMONDS,
-                    H: BidSuit.HEARTS,
-                    S: BidSuit.SPADES,
-                    N: BidSuit.NT,
-                    [BidSuit.CLUBS]: BidSuit.CLUBS,
-                    [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
-                    [BidSuit.HEARTS]: BidSuit.HEARTS,
-                    [BidSuit.SPADES]: BidSuit.SPADES,
-                }[m.groups.suit.toUpperCase()];
-            }
-            if (m.groups.description) {
-                opts.description = m.groups.description;
-            }
+        if (typeof opts !== 'object') {
+            throw new TypeError(`Invalid opts: "${opts}"`);
         }
-        if (opts.suit) {
-            if ((opts.level < 1) || (opts.level > 7)) {
+        if (typeof opts.level === 'string') {
+            const lev = parseInt(opts.level, 10);
+            if (isNaN(lev)) {
+                throw new Error(`Invalid level: "${opts.level}"`);
+            }
+            opts.level = lev;
+        }
+        if (typeof opts.level === 'number') {
+            if (opts.suit) {
+                if ((opts.level < 1) || (opts.level > 7)) {
+                    throw new Error(`Invalid level: "${opts.level}"`);
+                }
+            }
+            else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
                 throw new Error(`Invalid level: "${opts.level}"`);
             }
         }
-        else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
-            throw new Error(`Invalid level: "${opts.level}"`);
-        }
         this.level = opts.level;
-        this.suit = opts.suit;
+        if (typeof opts.suit === 'string') {
+            this.suit = {
+                C: BidSuit.CLUBS,
+                D: BidSuit.DIAMONDS,
+                H: BidSuit.HEARTS,
+                S: BidSuit.SPADES,
+                N: BidSuit.NT,
+                [BidSuit.CLUBS]: BidSuit.CLUBS,
+                [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
+                [BidSuit.HEARTS]: BidSuit.HEARTS,
+                [BidSuit.SPADES]: BidSuit.SPADES,
+            }[opts.suit.toUpperCase()];
+            if (!this.suit) {
+                throw new Error(`Invalid suit lookup: "${opts.suit.toUpperCase()}"`);
+            }
+        }
+        else {
+            this.suit = opts.suit;
+        }
         this.alert = opts.alert ?? false;
         this.description = opts.description;
     }
@@ -308,7 +325,8 @@ export class Bid extends Inspected {
                 ret += '!';
             }
             if (this.description) {
-                ret += ` (${this.description})`;
+                ret += ': ';
+                ret += this.description;
             }
         }
         return ret;
@@ -320,6 +338,41 @@ export class Bid extends Inspected {
             alert: this.alert,
             description: this.description,
         };
+    }
+    serialize() {
+        let ret = '{';
+        if (this.level instanceof Ref) {
+            if (this.level.ref === 'level') {
+                ret += 'level,';
+            }
+            else {
+                ret += `level: ${this.level.ref},`;
+            }
+        }
+        else {
+            ret += `level: ${this.level},`;
+        }
+        if (this.suit) {
+            if (this.suit instanceof Ref) {
+                if (this.suit.ref === 'suit') {
+                    ret += 'suit,';
+                }
+                else {
+                    ret += `suit: ${this.suit.ref},`;
+                }
+            }
+            else {
+                ret += `suit: '${this.suit}',`;
+            }
+        }
+        if (this.alert) {
+            ret += 'alert: true,';
+        }
+        if (this.description) {
+            ret += `description: \`${this.description}\`,`;
+        }
+        ret += '}';
+        return ret;
     }
 }
 export class Deal extends Inspected {
@@ -397,6 +450,19 @@ export class Deal extends Inspected {
     randVuln() {
         const v = Math.floor(Math.random() * 4);
         this.vuln = Object.values(Vuln)[v];
+    }
+    isVulnerable(hand) {
+        switch (this.vuln) {
+            case Vuln.ALL:
+                return true;
+            case Vuln.NONE:
+                return false;
+            case Vuln.NS:
+                return (hand.dir === Direction.NORTH) || (hand.dir === Direction.SOUTH);
+            case Vuln.EW:
+                return (hand.dir === Direction.EAST) || (hand.dir === Direction.WEST);
+        }
+        throw new TypeError(`Invalid vulnerability: "${this.vuln}"`);
     }
     bid(opts) {
         this.bids.push(new Bid(opts));

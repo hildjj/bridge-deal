@@ -10,5 +10,7 @@ south
   $suit = H
   5+H, S<=H
   $suit = S
+  $foo = ${suit}
   5+S
-  bid 1${suit}: 8+, 5+${suit}
+  $level = 1
+  bid ${level}${suit}: 8+, 5+${suit}

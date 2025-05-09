@@ -1,4 +1,4 @@
-import {Direction, Vuln} from './card.js';
+import {Bid, type BidOptions, Direction, Vuln} from './card.js';
 
 // - Deal
 // L dir
@@ -75,7 +75,7 @@ class Holder {
           if (Array.isArray(v)) {
             ret += `${this.indent(1)}${k} = [${v.join(', ')}];\n`;
           } else {
-            ret += `${this.indent(1)}${k} = '${v}';\n`;
+            ret += `${this.indent(1)}${k} = \`${v}\`;\n`;
           }
         }
       }
@@ -126,7 +126,7 @@ class Accept extends Holder {
 export class DealRules {
   public dealer = Direction.NORTH;
   public vuln: Vuln | undefined = undefined;
-  public bids: string[] = [];
+  public bids: BidOptions[] = [];
 
   #cur: Holder | undefined = undefined;
   #dirs: Holder[] = [];
@@ -151,31 +151,20 @@ export class DealRules {
 
   public toString(): string {
     let ret = '';
-    for (const v of this.#vars) {
-      ret += `let ${v} = null;\n`;
-    }
-    for (const d of this.#dirs) {
-      ret += d.toString();
-    }
     ret += `deal.dealer = '${this.dealer}';\n`;
     if (this.vuln) {
       ret += `deal.vuln = '${this.vuln}'\n`;
     } else {
       ret += 'deal.randVuln();\n';
     }
+    for (const v of this.#vars) {
+      ret += `let ${v} = null;\n`;
+    }
+    for (const d of this.#dirs) {
+      ret += d.toString();
+    }
     for (const b of this.bids) {
-      // Don't allow interpolated references to anything but existing
-      // bound variables.  Bound variables can't have `}` in them, due
-      // to parse rules.
-      for (const m of b.matchAll(/\${(?<interp>[^}]+)}/g)) {
-        if (!m.groups ||
-            (m.groups.interp === 'dir') ||
-            !this.#vars.has(m.groups.interp)
-        ) {
-          throw new Error(`Unknown variable "${m.groups?.interp}"`);
-        }
-      }
-      ret += `deal.bid(\`${b}\`);\n`;
+      ret += `deal.bid(${new Bid(b).serialize()});\n`;
     }
     ret += 'return true;\n';
     return ret;

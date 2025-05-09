@@ -18,12 +18,8 @@ test('DealRules', async() => {
   d.add('dir.balancedNoM()', 1);
   d.add('dir.points === 17', 0);
   // eslint-disable-next-line no-template-curly-in-string
-  d.bids.push('P: ${foo}');
+  d.bids.push({level: 0, description: '${foo}'});
   const code = d.toString();
   const expected = await snap('DealRules', code);
   equal(code, expected);
-  // eslint-disable-next-line no-template-curly-in-string
-  d.bids.push('P: ${bar}');
-  throws(() => d.toString());
-  d.bids.pop();
 });

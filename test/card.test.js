@@ -3,6 +3,7 @@ import {
   Card,
   Deal,
   Deck,
+  Ref,
   Suit,
   deals,
   findDeal,
@@ -10,6 +11,12 @@ import {
 import {default as assert, deepEqual, equal, throws} from 'node:assert/strict';
 import {test} from 'node:test';
 import util from 'node:util';
+
+test('Ref', () => {
+  const r = new Ref('foo');
+  // eslint-disable-next-line no-template-curly-in-string
+  equal(r.toString(), '${foo}');
+});
 
 test('card', () => {
   const c = new Card('2', Suit.CLUBS, 0);
@@ -72,17 +79,22 @@ West: ♣: A95 ♢: AKJ62 ♡: 62 ♠: QT6 (14)
 
 test('Bid', () => {
   equal(new Bid().toString(), 'P');
-  throws(() => new Bid('jjjjjj'));
-  equal(new Bid('1C').toString(), '1♣');
-  equal(new Bid('X').toString(), 'X');
-  equal(new Bid('XX').toString(), 'XX');
-  equal(new Bid('1♣!: 16+, artificial').toString(), '1♣! (16+, artificial)');
-  deepEqual(new Bid('1♣!: 16+, artificial').toJSON(), {
-    level: 1,
-    suit: '♣',
-    alert: true,
-    description: '16+, artificial',
-  });
+  throws(() => new Bid('jjjjjj'), TypeError);
+  equal(new Bid({level: 1, suit: 'C'}).toString(), '1♣');
+  equal(new Bid({level: -1}).toString(), 'X');
+  equal(new Bid({level: -2}).toString(), 'XX');
+  equal(new Bid({level: 1, suit: '♣', alert: true, description: '16+, artificial'}).toString(), '1♣!: 16+, artificial');
+  equal(new Bid({level: '0'}).toString(), 'P');
+  throws(() => new Bid({level: 'foo'}));
+  throws(() => new Bid({level: 1, suit: 'FOO'}));
+
+  equal(new Bid({level: new Ref('level'), suit: new Ref('suit')}).serialize(), '{level,suit,}');
+  equal(new Bid({level: new Ref('foo'), suit: new Ref('bar')}).serialize(), '{level: foo,suit: bar,}');
+
+  deepEqual(
+    JSON.stringify(new Bid({level: 1, suit: new Ref('suit'), alert: true, description: '16+, artificial'})),
+    '{"level":1,"suit":{"ref":"suit"},"alert":true,"description":"16+, artificial"}'
+  );
   deepEqual(new Bid({
     level: 1,
     suit: Suit.SPADES,
@@ -104,7 +116,6 @@ test('Bid', () => {
 test('Deal', () => {
   const d = new Deal(); // Random
   d.bid();
-  d.bid('1C!: 16+');
   d.randVuln();
   equal(typeof d.toString(), 'string');
   const json = d.toJSON();

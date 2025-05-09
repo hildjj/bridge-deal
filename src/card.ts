@@ -66,6 +66,23 @@ export class Inspected {
   }
 }
 
+export class Ref extends Inspected {
+  public readonly ref: string;
+
+  public constructor(ref: string) {
+    super();
+    this.ref = ref;
+  }
+
+  public toJSON(): object {
+    return {ref: this.ref};
+  }
+
+  public toString(): string {
+    return `\${${this.ref}}`;
+  }
+}
+
 // #region Cards
 export class Card extends Inspected {
   public static POINTS: {
@@ -288,15 +305,15 @@ export class Hand extends Inspected {
 
 // #region Bidding
 export interface BidOptions {
-  level: number;
-  suit?: BidSuit;
+  level: number | Ref;
+  suit?: BidSuit | Ref;
   alert?: boolean;
   description?: string;
 }
 
 export interface BidJSON {
-  level: number;
-  suit?: BidSuit;
+  level: number | Ref;
+  suit?: BidSuit | Ref;
   alert: boolean;
   description?: string;
 }
@@ -306,63 +323,67 @@ export class Bid extends Inspected {
   public static DOUBLE = -1;
   public static REDOUBLE = -2;
   public static BidFromName: {[key: string]: number} = {
+    p: Bid.PASS,
     P: Bid.PASS,
     X: Bid.DOUBLE,
+    x: Bid.DOUBLE,
     XX: Bid.REDOUBLE,
+    xx: Bid.REDOUBLE,
   };
 
-  public level: number;
-  public suit?: BidSuit;
+  public level: number | Ref;
+  public suit?: BidSuit | Ref;
   public alert: boolean;
   public description: string | undefined;
 
-  public constructor(opts?: BidOptions | string) {
+  public constructor(opts?: BidOptions) {
     super();
 
     if (!opts) {
-      opts = 'P';
+      opts = {level: Bid.PASS};
     }
 
-    if (typeof opts === 'string') {
-      const m = opts.match(/^(?<bid>P|X|XX|(?<level>[1-7])(?<suit>[CDHSN♣♢♡♠]))(?<alert>!)?(?::\s*(?<description>.*))?$/i);
-      if (!m?.groups) {
-        throw new Error(`Invalid bid: "${opts}"`);
-      }
-      const level = m.groups.level ?
-        parseInt(m.groups.level, 10) :
-        Bid.BidFromName[m.groups.bid];
-      opts = {
-        level,
-        alert: Boolean(m.groups.alert),
-      };
-      if (m.groups.suit) {
-        opts.suit = {
-          C: BidSuit.CLUBS,
-          D: BidSuit.DIAMONDS,
-          H: BidSuit.HEARTS,
-          S: BidSuit.SPADES,
-          N: BidSuit.NT,
-          [BidSuit.CLUBS]: BidSuit.CLUBS,
-          [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
-          [BidSuit.HEARTS]: BidSuit.HEARTS,
-          [BidSuit.SPADES]: BidSuit.SPADES,
-        }[m.groups.suit.toUpperCase()];
-      }
-      if (m.groups.description) {
-        opts.description = m.groups.description;
-      }
+    if (typeof opts !== 'object') {
+      throw new TypeError(`Invalid opts: "${opts}"`);
     }
 
-    if (opts.suit) {
-      if ((opts.level < 1) || (opts.level > 7)) {
+    if (typeof opts.level === 'string') {
+      const lev = parseInt(opts.level, 10);
+      if (isNaN(lev)) {
         throw new Error(`Invalid level: "${opts.level}"`);
       }
-    } else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
-      throw new Error(`Invalid level: "${opts.level}"`);
+      opts.level = lev;
+    }
+
+    if (typeof opts.level === 'number') {
+      if (opts.suit) {
+        if ((opts.level < 1) || (opts.level > 7)) {
+          throw new Error(`Invalid level: "${opts.level}"`);
+        }
+      } else if ((opts.level > Bid.PASS) || (opts.level < Bid.REDOUBLE)) {
+        throw new Error(`Invalid level: "${opts.level}"`);
+      }
     }
 
     this.level = opts.level;
-    this.suit = opts.suit;
+    if (typeof opts.suit === 'string') {
+      this.suit = {
+        C: BidSuit.CLUBS,
+        D: BidSuit.DIAMONDS,
+        H: BidSuit.HEARTS,
+        S: BidSuit.SPADES,
+        N: BidSuit.NT,
+        [BidSuit.CLUBS]: BidSuit.CLUBS,
+        [BidSuit.DIAMONDS]: BidSuit.DIAMONDS,
+        [BidSuit.HEARTS]: BidSuit.HEARTS,
+        [BidSuit.SPADES]: BidSuit.SPADES,
+      }[opts.suit.toUpperCase()];
+      if (!this.suit) {
+        throw new Error(`Invalid suit lookup: "${opts.suit.toUpperCase()}"`);
+      }
+    } else {
+      this.suit = opts.suit;
+    }
     this.alert = opts.alert ?? false;
     this.description = opts.description;
   }
@@ -389,7 +410,8 @@ export class Bid extends Inspected {
         ret += '!';
       }
       if (this.description) {
-        ret += ` (${this.description})`;
+        ret += ': ';
+        ret += this.description;
       }
     }
     return ret;
@@ -402,6 +424,39 @@ export class Bid extends Inspected {
       alert: this.alert,
       description: this.description,
     };
+  }
+
+  public serialize(): string {
+    let ret = '{';
+    if (this.level instanceof Ref) {
+      if (this.level.ref === 'level') {
+        ret += 'level,';
+      } else {
+        ret += `level: ${this.level.ref},`;
+      }
+    } else {
+      ret += `level: ${this.level},`;
+    }
+
+    if (this.suit) {
+      if (this.suit instanceof Ref) {
+        if (this.suit.ref === 'suit') {
+          ret += 'suit,';
+        } else {
+          ret += `suit: ${this.suit.ref},`;
+        }
+      } else {
+        ret += `suit: '${this.suit}',`;
+      }
+    }
+    if (this.alert) {
+      ret += 'alert: true,';
+    }
+    if (this.description) {
+      ret += `description: \`${this.description}\`,`;
+    }
+    ret += '}';
+    return ret;
   }
 }
 
@@ -515,7 +570,21 @@ export class Deal extends Inspected {
     this.vuln = Object.values(Vuln)[v];
   }
 
-  public bid(opts: BidOptions | string): void {
+  public isVulnerable(hand: Hand): boolean {
+    switch (this.vuln) {
+      case Vuln.ALL:
+        return true;
+      case Vuln.NONE:
+        return false;
+      case Vuln.NS:
+        return (hand.dir === Direction.NORTH) || (hand.dir === Direction.SOUTH);
+      case Vuln.EW:
+        return (hand.dir === Direction.EAST) || (hand.dir === Direction.WEST);
+    }
+    throw new TypeError(`Invalid vulnerability: "${this.vuln}"`);
+  }
+
+  public bid(opts: BidOptions): void {
     this.bids.push(new Bid(opts));
   }
 
@@ -559,7 +628,6 @@ export function findDeal(
   maxTries = MAX_TRIES
 ): [Deal, number] {
   let tries = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (tries++ > maxTries) {
       throw new Error(`Too many tries: ${tries}`);
