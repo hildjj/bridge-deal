@@ -13,14 +13,14 @@ test('bytesToBase64url', () => {
   equal(bytesToBase64url(u8.buffer), '-_Y');
 });
 
-test('compressString', async() => {
+test('compressString', async () => {
   const c = await compressString(txt);
   // Incosistent output.
   // equal(c, 'eJzLyy8qyeBSUDA01jU01VFISsxJzEtOTQGKJGWmKBj6WUFkANtJCkw');
   equal(await decompressString(c), txt);
 });
 
-test('decompressString', async() => {
+test('decompressString', async () => {
   const c = await decompressString('eJzLyy8qyeBSUDA01jU01VFISsxJzEtOTQGKJGWmKBj6WUFkANtJCkw');
   equal(c, txt);
 });

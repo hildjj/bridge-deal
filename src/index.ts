@@ -142,8 +142,8 @@ function parContract(str: string): string {
 }
 
 let diagResolve:
-  | ((result: PromiseLike<string | null> | string | null) => void)
-  | null = null;
+  ((result: PromiseLike<string | null> | string | null) => void) |
+  null = null;
 diag.onclose = (): void => {
   diagResolve?.(diag.returnValue ? diagFilter.value : null);
 };
@@ -328,7 +328,7 @@ async function gotMessage(e: MessageEvent): Promise<void> {
   error.innerText = `Invalid message type: "${typ}"`;
 }
 
-db.init().then(async() => {
+db.init().then(async () => {
   ([editor, model, monaco] = await initMonaco('monaco', () => {
     state.stamp = Date.now();
     monaco.editor.removeAllMarkers('web');
@@ -388,7 +388,7 @@ nxt.onclick = (): void => {
   nextDeal();
 };
 
-rename.onclick = async(): Promise<void> => {
+rename.onclick = async (): Promise<void> => {
   const name = await diagPrompt('New name?', state.name);
   if (name !== null) {
     const opt = files.item(files.selectedIndex);
@@ -405,7 +405,7 @@ rename.onclick = async(): Promise<void> => {
   }
 };
 
-copyFilter.onclick = async(): Promise<void> => {
+copyFilter.onclick = async (): Promise<void> => {
   const name = await diagPrompt('Save as?', state.name);
   if (!name) {
     return;
@@ -420,7 +420,7 @@ copyFilter.onclick = async(): Promise<void> => {
   nextDeal();
 };
 
-share.onclick = async(): Promise<void> => {
+share.onclick = async (): Promise<void> => {
   const u = new URL(window.location.href);
   u.hash = '';
   u.searchParams.append('name', state.name);
@@ -450,7 +450,7 @@ async function newFilter(): Promise<void> {
   await nextDeal();
 }
 
-del.onclick = async(): Promise<void> => {
+del.onclick = async (): Promise<void> => {
   let opt = files.item(files.selectedIndex);
   if (opt) {
     const old = opt.text;
@@ -479,7 +479,7 @@ del.onclick = async(): Promise<void> => {
 
 add.onclick = newFilter;
 
-window.onkeydown = async(ev: KeyboardEvent): Promise<boolean> => {
+window.onkeydown = async (ev: KeyboardEvent): Promise<boolean> => {
   // See:
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event
   // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -505,7 +505,7 @@ window.onkeydown = async(ev: KeyboardEvent): Promise<boolean> => {
   return true;
 };
 
-files.onchange = async(_ev): Promise<void> => {
+files.onchange = async (_ev): Promise<void> => {
   // Save existing.
   await db.putJS({
     name: state.name,
