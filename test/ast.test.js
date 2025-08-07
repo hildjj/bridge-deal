@@ -4,7 +4,7 @@ import {DealRules} from '../docs/js/ast.js';
 import snap from 'snappy-snaps';
 import {test} from 'node:test';
 
-test('DealRules', async() => {
+test('DealRules', async () => {
   const d = new DealRules();
   assert(d);
   throws(() => d.add('foo', 0));

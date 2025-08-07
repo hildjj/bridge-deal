@@ -25,7 +25,7 @@ Promise.all([
   // @ts-expect-error Don't bother with .d.ts for now
   import('./deal.js'),
   wasmReady,
-]).then(async([{
+]).then(async ([{
   Deal,
   findDeal,
 }, {
@@ -57,7 +57,7 @@ Promise.all([
 
   const noOp = (): boolean => true;
   let filter: DealPredicate = noOp;
-  addEventListener('message', async(e): Promise<void> => {
+  addEventListener('message', async (e): Promise<void> => {
     const code = await db.getJS(e.data.name, e.data.stamp);
     if (code) {
       if (code.code.trim()) {

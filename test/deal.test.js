@@ -19,7 +19,7 @@ async function snapParse(src) {
   }
 }
 
-test('peggyCoverage', async() => {
+test('peggyCoverage', async () => {
   await testPeggy(new URL('../docs/js/deal.js', import.meta.url), [
     {
       validInput: '',
@@ -33,7 +33,7 @@ test('peggyCoverage', async() => {
   ]);
 });
 
-test('parse', async() => {
+test('parse', async () => {
   for (const src of [
     'dealer north',
     'dealer south',

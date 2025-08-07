@@ -53,7 +53,7 @@ export class Storage {
           reject(new Error('No transaction'));
           return;
         }
-        idb.transaction.oncomplete = async(): Promise<void> => {
+        idb.transaction.oncomplete = async (): Promise<void> => {
           await this.putJS({
             name: 'Precision 2D',
             stamp: Date.now(),
