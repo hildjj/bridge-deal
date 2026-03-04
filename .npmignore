@@ -1,11 +1,13 @@
 .c8rc
 .cache/
 .cert/
+.devcontainer/devcontainer.json
 .editorconfig
 .fiveserverrc
 .github/
 .hostlocal.js
 .ncurc
+.pnpm-store/
 .vscode/
 calldds.js
 coverage/

@@ -1,4 +1,6 @@
 .cache/
+.cert/
+.pnpm-store/
 calldds.js
 coverage
 ddummy6.cjs
@@ -6,4 +8,3 @@ docs/js/dds.cjs
 hands/*.js
 lib/
 node_modules/
-.cert/
