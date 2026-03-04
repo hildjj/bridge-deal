@@ -8,6 +8,13 @@ declare global {
 export let model: any = null;
 export let editor: any = null;
 
+/**
+ * Initialize a Monaco instance.
+ *
+ * @param elemId Element to put editor into.
+ * @param onChange Callback when contents change.
+ * @returns Tuple of editor instance, model instance, and monaco global.
+ */
 export function initMonaco(
   elemId: string,
   onChange: () => void

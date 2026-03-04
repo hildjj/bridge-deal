@@ -545,8 +545,9 @@ export class Deal extends Inspected {
   /**
    * Add all of the weights for the cards held.
    *
-   * @param cards Cards to compute over
-   * @param weights Weights for A, K, Q, etc. in order.  0 is the default.
+   * @param cards Cards to compute over.
+   * @param weights Weights for A, K, Q, etc in order.  Default is 0.
+   * @returns Sum of weights.
    */
   public static weight(cards: Card[], weights: number[]): number {
     let tot = 0;
@@ -623,6 +624,13 @@ export class Deal extends Inspected {
 export type DealPredicate =
   (deal: Deal, cls: typeof Deal.constructor) => boolean;
 
+/**
+ * Find a random deal that passes the given filter.
+ * @param filter Rules.
+ * @param maxTries Stop after this many tries.
+ * @returns Tuple of deal and home many tries it took.
+ * @throws If filter returns something other than bool.
+ */
 export function findDeal(
   filter?: DealPredicate,
   maxTries = MAX_TRIES
@@ -646,6 +654,13 @@ export function findDeal(
   }
 }
 
+/**
+ * Create a number of deals that all match the filter.
+ *
+ * @param num How many?
+ * @param filter Filter.
+ * @returns Array of found deals.
+ */
 export function deals(num: number, filter?: DealPredicate): Deal[] {
   const ret: Deal[] = new Array(num);
   let count = 0;

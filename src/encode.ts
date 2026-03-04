@@ -9,6 +9,12 @@ const urlToB64: {[key: string]: string} = {
   '_': '/',
 };
 
+/**
+ * Base64URL encode a buffer.
+ *
+ * @param buf Buffer to encode.
+ * @returns String encoded as b64url.
+ */
 export function bytesToBase64url(buf: ArrayBuffer): string {
   const u8 = new Uint8Array(buf);
   // https://developer.mozilla.org/en-US/docs/Glossary/Base64
@@ -26,7 +32,7 @@ export function bytesToBase64url(buf: ArrayBuffer): string {
  * Compress text by utf-8 encoding, deflating, then base64url encoding.
  *
  * @param txt String to compress.
- * @returns base64url string.
+ * @returns String as base64url.
  */
 export async function compressString(txt: string): Promise<string> {
   const te = new TextEncoderStream();
@@ -38,6 +44,12 @@ export async function compressString(txt: string): Promise<string> {
   return bytesToBase64url(await r.arrayBuffer());
 }
 
+/**
+ * Decompress a string compressed with compressString.
+ *
+ * @param compressed String.
+ * @returns Decompressed.
+ */
 export async function decompressString(compressed: string): Promise<string> {
   let b64 = compressed.replace(
     /[_-]/g,
